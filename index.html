@@ -2,13 +2,13 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Layout Generator Exact Color</title>
+  <title>Layout Generator Exact Cantika Acc</title>
   <style>
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
     body {
@@ -37,7 +37,7 @@
       width: 100%;
     }
 
-    /* Outer Card (Panel Utama Hitam) */
+    /* Outer Card */
     .card {
       background-color: #000000;
       border: 2px solid #000000;
@@ -53,7 +53,7 @@
       margin-bottom: 8px;
     }
 
-    /* Header Judul (Kotak Hitam Teks Putih Bold) */
+    /* Header Judul */
     .card-title {
       font-size: 11px;
       font-weight: bold;
@@ -68,6 +68,7 @@
     /* Input & Textarea */
     textarea, input[type="text"] {
       width: 100%;
+      box-sizing: border-box;
       background-color: #5d636b;
       border: 1px solid #1a1a1a;
       color: #fff;
@@ -97,7 +98,11 @@
       border-radius: 2px;
     }
 
-    /* Warna Tombol Persis Gambar */
+    button:active {
+      opacity: 0.8;
+    }
+
+    /* Warna Tombol */
     .btn-blue { background-color: #0066cc; }
     .btn-green { background-color: #008a3c; }
     .btn-orange { background-color: #e65c00; }
@@ -120,22 +125,68 @@
       margin: 4px 0;
     }
 
-    /* List Item Akun Generator */
-    .account-item {
+    /* CSS GAYA CANTIKA ACC PADA HASIL GENERATOR */
+    .cantika-controls {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      background-color: #0d2c4d;
-      border: 1px solid #000;
-      padding: 5px 8px;
-      margin-bottom: 4px;
-      font-size: 11px;
+      margin-bottom: 8px;
     }
 
-    .account-item button {
-      background-color: #000;
-      font-size: 10px;
-      padding: 2px 6px;
+    .cantika-controls button {
+      width: 100%;
+      border-radius: 999px;
+      padding: 8px 14px;
+      border: none;
+      background: #72243E;
+      color: #ffffff;
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .cantika-controls button:hover {
+      background: #4B1528;
+    }
+
+    .cantika-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .cantika-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #0C447C;
+    }
+
+    .cantika-row .val {
+      flex: 1;
+      min-width: 0;
+      font-size: 13px;
+      font-weight: 500;
+      color: #ffffff;
+      overflow-wrap: break-word;
+    }
+
+    .cantika-row button {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: none;
+      background: #042C53;
+      color: #ffffff;
+      font-size: 12px;
+    }
+
+    .cantika-row button:hover {
+      background: #021c36;
+    }
+
+    .spacer {
+      width: 28px;
+      flex-shrink: 0;
     }
   </style>
 </head>
@@ -150,45 +201,45 @@
       <div class="card">
         <div class="card-title">USERNAME</div>
         <div class="inner-box">
-          <textarea rows="4" placeholder="USERNAME"></textarea>
-          <div class="count-text">Jumlah: 0</div>
+          <textarea id="username-input" rows="4" placeholder="USERNAME"></textarea>
+          <div class="count-text" id="username-count">Jumlah: 0</div>
         </div>
 
         <div class="inner-box">
-          <input type="text" value="1" style="margin-bottom: 5px;">
+          <input type="text" id="username-take-count" value="1" style="margin-bottom: 5px;">
           <div class="btn-group">
-            <button class="btn-blue btn-flex">Get ACC</button>
-            <button class="btn-green btn-flex">Copy ACC</button>
+            <button class="btn-blue btn-flex" onclick="getAccStandard('username')">Get ACC</button>
+            <button class="btn-green btn-flex" onclick="copyAcc('username')">Copy ACC</button>
           </div>
           <div style="display: flex; gap: 4px;">
-            <input type="text" value="Ngelead085" readonly>
-            <button class="btn-pink">📋 Copy Pwd</button>
+            <input type="text" id="username-pwd" value="Ngelead085" readonly>
+            <button class="btn-pink" onclick="copyText('username-pwd')">📋 Copy Pwd</button>
           </div>
         </div>
 
         <div class="inner-box">
-          <textarea rows="2" readonly>Hasil Get ACC akan muncul di sini</textarea>
+          <textarea id="username-output" rows="2" readonly placeholder="Hasil Get ACC akan muncul di sini"></textarea>
         </div>
       </div>
 
-      <!-- KANAN: GENERATOR AKUN (Input Password & Tombol Copy Pwd Telah Dihapus) -->
+      <!-- KANAN: GENERATOR AKUN -->
       <div class="card">
         <div class="card-title">GENERATOR AKUN</div>
-        <div class="inner-box">
-          <textarea rows="5">Judy Riley
+        
+        <div style="margin-bottom: 8px;">
+          <textarea id="nameInput" rows="5" placeholder="Tulis nama di sini, satu nama per baris">Judy Riley
 Betsy Shepherd
 Rita Bowers
 Billie Warner
 Brittany Craig</textarea>
         </div>
 
-        <div style="margin-top: 10px;">
-          <div class="account-item"><span>Teri McMahon</span> <button>📋 Salin</button></div>
-          <div class="account-item"><span>terimcmahon45579</span> <button>📋 Salin</button></div>
-          <div class="account-item"><span>terimcmahon_51762</span> <button>📋 Salin</button></div>
-          <div class="account-item"><span>teri4399221</span> <button>📋 Salin</button></div>
-          <div class="account-item"><span>teri_3598584</span> <button>📋 Salin</button></div>
+        <!-- HANYA TOMBOL ACAK NAMA -->
+        <div class="cantika-controls">
+          <button id="btnAcak">🔄 Acak nama</button>
         </div>
+
+        <div id="rows" class="cantika-rows"></div>
       </div>
 
     </div>
@@ -196,30 +247,30 @@ Brittany Craig</textarea>
     <!-- BARIS BAWAH (FULL WIDTH: TITEL FYP, TOPIK, LINK) -->
     <div class="bottom-row">
       <div class="card">
-        <button class="btn-orange" style="width: 100%; text-align: center; margin-bottom: 8px;">💾 Save Sisa Data (.txt)</button>
+        <button class="btn-orange" style="width: 100%; text-align: center; margin-bottom: 8px;" onclick="saveSisaData()">💾 Save Sisa Data (.txt)</button>
         
         <div class="fyp-columns">
           
-          <!-- Kolom 1: TITEL FYP -->
+          <!-- Kolom 1: TITEL FYP (PEMISAH #####) -->
           <div>
             <div class="card-title">TITEL FYP</div>
             <div class="inner-box">
-              <textarea rows="4">Good morning 🐱
+              <textarea id="titel-input" rows="4">Good morning 🐱
 #####
 us us
 #####
 📷 photo</textarea>
-              <div class="count-text">Jumlah: 2111</div>
+              <div class="count-text" id="titel-count">Jumlah: 0</div>
             </div>
             <div class="inner-box">
-              <input type="text" value="1" style="margin-bottom: 4px;">
+              <input type="text" id="titel-take-count" value="1" style="margin-bottom: 4px;">
               <div class="btn-group">
-                <button class="btn-blue btn-flex">Get ACC</button>
-                <button class="btn-green btn-flex">Copy ACC</button>
+                <button class="btn-blue btn-flex" onclick="getAccTitelFyp()">Get ACC</button>
+                <button class="btn-green btn-flex" onclick="copyAcc('titel')">Copy ACC</button>
               </div>
             </div>
             <div class="inner-box">
-              <textarea rows="2" readonly>Dog Style 🐩</textarea>
+              <textarea id="titel-output" rows="2" readonly placeholder="Hasil Get ACC akan muncul di sini"></textarea>
             </div>
           </div>
 
@@ -227,21 +278,21 @@ us us
           <div>
             <div class="card-title">TOPIK</div>
             <div class="inner-box">
-              <textarea rows="4">Dating Threads
+              <textarea id="topik-input" rows="4">Dating Threads
 Sent you a friend request
 Dating Threads
 Sent you a friend request</textarea>
-              <div class="count-text">Jumlah: 2688</div>
+              <div class="count-text" id="topik-count">Jumlah: 0</div>
             </div>
             <div class="inner-box">
-              <input type="text" value="1" style="margin-bottom: 4px;">
+              <input type="text" id="topik-take-count" value="1" style="margin-bottom: 4px;">
               <div class="btn-group">
-                <button class="btn-blue btn-flex">Get ACC</button>
-                <button class="btn-green btn-flex">Copy ACC</button>
+                <button class="btn-blue btn-flex" onclick="getAccStandard('topik')">Get ACC</button>
+                <button class="btn-green btn-flex" onclick="copyAcc('topik')">Copy ACC</button>
               </div>
             </div>
             <div class="inner-box">
-              <textarea rows="2" readonly>Hasil Get ACC akan muncul di sini</textarea>
+              <textarea id="topik-output" rows="2" readonly placeholder="Hasil Get ACC akan muncul di sini"></textarea>
             </div>
           </div>
 
@@ -249,18 +300,18 @@ Sent you a friend request</textarea>
           <div>
             <div class="card-title">LINK</div>
             <div class="inner-box">
-              <textarea rows="4">https://lillie-liveaccessprivatroom04.pages.dev</textarea>
-              <div class="count-text">Jumlah: 206</div>
+              <textarea id="link-input" rows="4">https://lillie-liveaccessprivatroom04.pages.dev</textarea>
+              <div class="count-text" id="link-count">Jumlah: 0</div>
             </div>
             <div class="inner-box">
-              <input type="text" value="1" style="margin-bottom: 4px;">
+              <input type="text" id="link-take-count" value="1" style="margin-bottom: 4px;">
               <div class="btn-group">
-                <button class="btn-blue btn-flex">Get ACC</button>
-                <button class="btn-green btn-flex">Copy ACC</button>
+                <button class="btn-blue btn-flex" onclick="getAccStandard('link')">Get ACC</button>
+                <button class="btn-green btn-flex" onclick="copyAcc('link')">Copy ACC</button>
               </div>
             </div>
             <div class="inner-box">
-              <textarea rows="2" readonly>Hasil Get ACC akan muncul di sini</textarea>
+              <textarea id="link-output" rows="2" readonly placeholder="Hasil Get ACC akan muncul di sini"></textarea>
             </div>
           </div>
 
@@ -269,6 +320,173 @@ Sent you a friend request</textarea>
     </div>
 
   </div>
+
+  <script>
+    // --- FUNGSIONALITAS PENGHITUNG DATA & GET ACC ---
+    function updateCounts() {
+      ['username', 'topik', 'link'].forEach(key => {
+        const input = document.getElementById(`${key}-input`);
+        const countDisplay = document.getElementById(`${key}-count`);
+        const lines = input.value.split('\n').filter(line => line.trim() !== '');
+        countDisplay.textContent = `Jumlah: ${lines.length}`;
+      });
+
+      const titelInput = document.getElementById('titel-input');
+      const titelCount = document.getElementById('titel-count');
+      const blocks = titelInput.value.split(/\n?#####\n?/).filter(b => b.trim() !== '');
+      titelCount.textContent = `Jumlah: ${blocks.length}`;
+    }
+
+    ['username', 'titel', 'topik', 'link'].forEach(key => {
+      document.getElementById(`${key}-input`).addEventListener('input', updateCounts);
+    });
+
+    function getAccTitelFyp() {
+      const inputEl = document.getElementById('titel-input');
+      const takeCountEl = document.getElementById('titel-take-count');
+      const outputEl = document.getElementById('titel-output');
+
+      let blocks = inputEl.value.split(/\n?#####\n?/).filter(b => b.trim() !== '');
+      const takeNum = parseInt(takeCountEl.value) || 1;
+
+      if (blocks.length === 0) return;
+
+      const takenBlocks = blocks.splice(0, takeNum);
+      outputEl.value = takenBlocks.join('\n#####\n');
+      inputEl.value = blocks.join('\n#####\n');
+
+      updateCounts();
+    }
+
+    function getAccStandard(key) {
+      const inputEl = document.getElementById(`${key}-input`);
+      const takeCountEl = document.getElementById(`${key}-take-count`);
+      const outputEl = document.getElementById(`${key}-output`);
+
+      let lines = inputEl.value.split('\n').filter(line => line.trim() !== '');
+      const takeNum = parseInt(takeCountEl.value) || 1;
+
+      if (lines.length === 0) return;
+
+      const takenItems = lines.splice(0, takeNum);
+      outputEl.value = takenItems.join('\n');
+      inputEl.value = lines.join('\n');
+
+      updateCounts();
+    }
+
+    function copyAcc(key) {
+      const outputEl = document.getElementById(`${key}-output`);
+      if (outputEl.value) {
+        navigator.clipboard.writeText(outputEl.value);
+      }
+    }
+
+    function copyText(elementIdOrText, isDirectText = false) {
+      let textToCopy = isDirectText ? elementIdOrText : document.getElementById(elementIdOrText).value;
+      navigator.clipboard.writeText(textToCopy);
+    }
+
+    // --- LOGIKA UTUH DARI CANTIKA ACC ---
+    function digitsN(n){
+      let s = '';
+      for(let i=0; i<n; i++){ s += (1 + Math.floor(Math.random()*9)); }
+      return s;
+    }
+
+    function splitLines(text){
+      return text.split(/\r\n|\r|\n/).map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
+    }
+
+    let state = { fullName: '', d3: '', d4: '', d5: '', d6: '' };
+
+    function slug(name){ return name.toLowerCase().replace(/\s+/g,''); }
+    function firstName(name){ return name.trim().split(/\s+/)[0] || ''; }
+
+    function rowConfig(){
+      if(!state.fullName) return [];
+      const full = slug(state.fullName);
+      const first = slug(firstName(state.fullName));
+      return [
+        { key: 'name', value: state.fullName, editable: false, digitLen: 0 },
+        { key: 'd3', value: full + state.d3, editable: true, digitLen: 5 },
+        { key: 'd4', value: full + '_' + state.d4, editable: true, digitLen: 5 },
+        { key: 'd5', value: first + state.d5, editable: true, digitLen: 7 },
+        { key: 'd6', value: first + '_' + state.d6, editable: true, digitLen: 7 }
+      ];
+    }
+
+    function render(){
+      const rows = rowConfig();
+      const container = document.getElementById('rows');
+      container.innerHTML = '';
+      rows.forEach(function(r){
+        const row = document.createElement('div');
+        row.className = 'cantika-row';
+
+        const val = document.createElement('div');
+        val.className = 'val';
+        val.textContent = r.value;
+        row.appendChild(val);
+
+        const btnCopy = document.createElement('button');
+        btnCopy.textContent = '📋';
+        btnCopy.title = 'Salin';
+        btnCopy.onclick = function(){
+          navigator.clipboard.writeText(r.value).then(function(){
+            btnCopy.textContent = '✅';
+            setTimeout(function(){ btnCopy.textContent = '📋'; }, 1000);
+          });
+        };
+        row.appendChild(btnCopy);
+
+        if(r.editable){
+          const btnUbah = document.createElement('button');
+          btnUbah.textContent = '🎲';
+          btnUbah.title = 'Ubah angka saja';
+          btnUbah.onclick = function(){ state[r.key] = digitsN(r.digitLen); render(); };
+          row.appendChild(btnUbah);
+        } else {
+          const spacer = document.createElement('div');
+          spacer.className = 'spacer';
+          row.appendChild(spacer);
+        }
+
+        container.appendChild(row);
+      });
+    }
+
+    function acakSemua(){
+      const names = splitLines(document.getElementById('nameInput').value);
+      if(names.length === 0) return;
+      const pick = names[Math.floor(Math.random() * names.length)];
+      state = { fullName: pick, d3: digitsN(5), d4: digitsN(5), d5: digitsN(7), d6: digitsN(7) };
+      render();
+    }
+
+    document.getElementById('btnAcak').onclick = acakSemua;
+    document.getElementById('nameInput').addEventListener('input', acakSemua);
+
+    // Save Sisa Data (.txt)
+    function saveSisaData() {
+      const usernameData = document.getElementById('username-input').value;
+      const titelData = document.getElementById('titel-input').value;
+      const topikData = document.getElementById('topik-input').value;
+      const linkData = document.getElementById('link-input').value;
+
+      const content = `=== USERNAME ===\n${usernameData}\n\n=== TITEL FYP ===\n${titelData}\n\n=== TOPIK ===\n${topikData}\n\n=== LINK ===\n${linkData}`;
+
+      const blob = new Blob([content], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'Sisa_Data.txt';
+      a.click();
+    }
+
+    // Inisialisasi awal
+    updateCounts();
+    acakSemua();
+  </script>
 
 </body>
 </html>
