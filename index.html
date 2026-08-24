@@ -1,738 +1,274 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ACC & Generator Tool</title>
-<style>
-  :root{
-    --card:#5a606b;
-    --field:#6b7280;
-    --border:#000000;
-    --text:#ffffff;
-    --blue:#2563eb;
-    --green:#15803d;
-    --orange:#ea580c;
-  }
-  *{
-    box-sizing:border-box;
-  }
-  html, body{
-    min-height:100%;
-  }
-  body{
-    margin:0;
-    padding:20px 12px;
-    font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    color:var(--text);
-    overflow-x:hidden;
-  }
-  /* BACKGROUND BENDERA USA - SVG */
-  #usaFlag{
-    position:fixed;
-    inset:0;
-    width:100vw;
-    height:100vh;
-    z-index:-10;
-    pointer-events:none;
-  }
-  #flagOverlay{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,0.12);
-    z-index:-9;
-    pointer-events:none;
-  }
-  .outer{
-    background:transparent;
-    padding:10px;
-    max-width:1600px;
-    margin:0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  
-  /* CONTAINER UTAMA ATAS (2 KOLOM BESAR BERSEBELAHAN) */
-  .main-layout {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    align-items: stretch;
-  }
-
-  .frame, .gen-frame, .bottom-frame {
-    background: rgba(30,35,42,0.88);
-    border: 5px solid #000000;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* KOLOM BAWAH TERBENTANG FULL SAMA DENGAN CONTAINER ATAS */
-  .bottom-frame {
-    width: 100%;
-  }
-
-  /* GLOBAL ACTION BAR */
-  .global-actions {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 14px;
-    background: #272b33;
-    padding: 10px;
-    border: 1px solid #000000;
-  }
-  .global-actions button {
-    flex: 1;
-    border: none;
-    border-radius: 0;
-    padding: 8px 12px;
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    color: #ffffff;
-    text-align: center;
-    transition: filter .15s ease, transform .05s ease;
-  }
-  .global-actions button:active {
-    transform: translateY(1px);
-  }
-  .btn-save-all { background: var(--orange); }
-  .btn-save-all:hover { filter: brightness(1.08); }
-
-  .wrap{
-    overflow-x:auto;
-    background:transparent;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  /* 3 KOLOM DI KIRI (TITEL FYP, TOPIK, LINK) */
-  .grid{
-    display:grid;
-    grid-template-columns:repeat(3,minmax(110px,1fr));
-    gap:8px;
-    background:transparent;
-  }
-  .col{
-    background:#3a3f47;
-    border-radius:0;
-    box-shadow:0 10px 30px rgba(20,20,40,0.20);
-    padding:10px;
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-    width: 100%;
-  }
-  .col-title{
-    font-size:12px;
-    font-weight:700;
-    color:#ffffff;
-    text-transform:uppercase;
-    letter-spacing:.4px;
-    background:#000000;
-    padding:8px 10px;
-    margin:-10px -10px 0 -10px;
-    text-shadow:0 0 6px #ffffff, 0 0 12px #ffffff, 0 0 20px rgba(255,255,255,0.6);
-  }
-  .card{
-    background:#5a606b;
-    border:1px solid #000000;
-    border-radius:0;
-    padding:8px;
-  }
-  .control-card{
-    padding:3px 6px;
-  }
-  .control-card .row{
-    margin-top:3px;
-    gap:4px;
-  }
-  .control-card .status{
-    margin-top:2px;
-    min-height:0;
-  }
-  textarea, input[type="number"], input[type="text"]{
-    width:100%;
-    background:#6b7280;
-    border:1px solid #000000;
-    border-radius:0;
-    padding:8px 9px;
-    font-size:12px;
-    color:#ffffff;
-    font-family:inherit;
-    resize:vertical;
-    outline:none;
-  }
-  textarea::placeholder{
-    color:rgba(255,255,255,0.35);
-  }
-  input[type="number"], input[type="text"]{
-    color:#ffffff;
-  }
-  textarea:focus, input[type="number"]:focus, input[type="text"]:focus{
-    border-color:#ffffff;
-  }
-  .in-area{
-    min-height:90px;
-    color:#ffffff;
-    line-height:1.45;
-  }
-  .out-area{
-    min-height:70px;
-    color:#ffffff;
-    line-height:1.45;
-  }
-  .meta{
-    margin-top:6px;
-    font-size:12px;
-    color:#ffffff;
-  }
-  .meta b{
-    font-weight:700;
-  }
-  .meta span{
-    color:#93c5fd;
-    font-weight:700;
-  }
-  .row{
-    display:flex;
-    gap:6px;
-    margin-top:6px;
-  }
-  button{
-    border:none;
-    border-radius:0;
-    padding:5px 6px;
-    font-size:11px;
-    font-weight:600;
-    cursor:pointer;
-    color:#ffffff;
-    flex:1;
-    transition:filter .15s ease, transform .05s ease;
-  }
-  button:active{
-    transform:translateY(1px);
-  }
-  .btn-get{
-    background:var(--blue);
-  }
-  .btn-get:hover{
-    filter:brightness(1.08);
-  }
-  .btn-copy{
-    background:var(--green);
-  }
-  .btn-copy:hover{
-    filter:brightness(1.08);
-  }
-  .status{
-    font-size:11px;
-    margin-top:6px;
-    min-height:13px;
-  }
-  .status.ok{
-    color:#86efac;
-  }
-  .status.err{
-    color:#fca5a5;
-  }
-  .field-label{
-    display:none;
-  }
-
-  /* STYLING UNTUK PASSWORD DI USERNAME */
-  .pwd-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 8px;
-  }
-  .btn-copy-pwd {
-    border-radius: 0;
-    padding: 8px 12px;
-    font-size: 11px;
-    font-weight: 600;
-    background: #72243E;
-    flex: 0 0 auto;
-    white-space: nowrap;
-  }
-  .btn-copy-pwd:hover {
-    background: #4B1528;
-  }
-  .pwd-input {
-    flex: 1;
-    background: #6b7280;
-    border: 1px solid #000000;
-    font-family: "Courier New", monospace;
-  }
-
-  /* STYLING GENERATOR AKUN */
-  .gen-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 12px 0;
-    flex-wrap: wrap;
-  }
-  #btnAcak, #btnCopyPwdMain {
-    border-radius: 0;
-    padding: 8px 12px;
-    font-size: 11px;
-    font-weight: 600;
-    background: #72243E;
-  }
-  #btnAcak:hover, #btnCopyPwdMain:hover {
-    background: #4B1528;
-  }
-  #pwdInputMain {
-    flex: 1;
-    min-width: 130px;
-    background: #6b7280;
-    border: 1px solid #000000;
-    font-family: "Courier New", monospace;
-  }
-  #gen-rows {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  .gen-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 10px;
-    border: 1px solid #000000;
-    background: #5a606b;
-  }
-  .gen-row .val {
-    flex: 1;
-    min-width: 0;
-    font-size: 12px;
-    font-weight: 500;
-    color: #ffffff;
-    overflow-wrap: break-word;
-  }
-  .gen-row button {
-    flex-shrink: 0;
-    padding: 5px 12px;
-    border-radius: 0;
-    border: none;
-    background: #042C53;
-    color: #ffffff;
-    font-size: 11px;
-  }
-  .gen-row button:hover {
-    background: #021c36;
-  }
-
-  /* RESPONSIVE UNTUK LAYAR HP/TABLET KECIL */
-  @media(max-width: 1200px){
-    .main-layout {
-      grid-template-columns: 1fr;
+  <meta charset="UTF-8">
+  <title>Layout Generator Exact Color</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
     }
-  }
-  @media(max-width:700px){
-    body{
-      padding:8px 4px;
+
+    body {
+      background-color: #2b2b2b;
+      color: #fff;
+      padding: 15px;
     }
-    .outer{
-      padding:4px;
+
+    .dashboard-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 1400px;
+      margin: 0 auto;
     }
-    .frame, .gen-frame, .bottom-frame{
-      padding:8px;
-      border-width:3px;
+
+    /* BARIS ATAS: Dibagi 2 Kolom (50% : 50%) */
+    .top-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
     }
-    .grid{
-      grid-template-columns: 1fr;
+
+    /* BARIS BAWAH: Full Lebar Kiri-Kanan */
+    .bottom-row {
+      width: 100%;
     }
-  }
-</style>
+
+    /* Outer Card (Panel Utama Hitam) */
+    .card {
+      background-color: #000000;
+      border: 2px solid #000000;
+      padding: 10px;
+      height: 100%;
+    }
+
+    /* Sub-box Abu-abu di dalam Card */
+    .inner-box {
+      background-color: #3b3c3d;
+      border: 1px solid #555;
+      padding: 8px;
+      margin-bottom: 8px;
+    }
+
+    /* Header Judul (Kotak Hitam Teks Putih Bold) */
+    .card-title {
+      font-size: 11px;
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      background: #000;
+      padding: 3px 6px;
+      display: inline-block;
+    }
+
+    /* Input & Textarea */
+    textarea, input[type="text"] {
+      width: 100%;
+      background-color: #5d636b;
+      border: 1px solid #1a1a1a;
+      color: #fff;
+      padding: 5px 8px;
+      font-size: 11px;
+      font-family: monospace;
+      resize: vertical;
+    }
+
+    textarea::placeholder, input::placeholder {
+      color: #aaa;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 4px;
+      margin: 6px 0;
+    }
+
+    button {
+      border: none;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: bold;
+      color: #fff;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+
+    /* Warna Tombol Persis Gambar */
+    .btn-blue { background-color: #0066cc; }
+    .btn-green { background-color: #008a3c; }
+    .btn-orange { background-color: #e65c00; }
+    .btn-pink { background-color: #aa2b57; }
+
+    .btn-flex { flex: 1; }
+
+    /* Layout 3 Kolom FYP */
+    .fyp-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .count-text {
+      font-size: 11px;
+      font-weight: bold;
+      color: #4da6ff;
+      margin: 4px 0;
+    }
+
+    /* List Item Akun Generator */
+    .account-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #0d2c4d;
+      border: 1px solid #000;
+      padding: 5px 8px;
+      margin-bottom: 4px;
+      font-size: 11px;
+    }
+
+    .account-item button {
+      background-color: #000;
+      font-size: 10px;
+      padding: 2px 6px;
+    }
+  </style>
 </head>
 <body>
 
-<!-- BENDERA USA - INLINE SVG -->
-<svg id="usaFlag" viewBox="0 0 1000 526" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-  <rect width="1000" height="526" fill="#ffffff"/>
-  <rect y="0" width="1000" height="40.46" fill="#b22234"/>
-  <rect y="80.92" width="1000" height="40.46" fill="#b22234"/>
-  <rect y="161.84" width="1000" height="40.46" fill="#b22234"/>
-  <rect y="242.76" width="1000" height="40.46" fill="#b22234"/>
-  <rect y="323.68" width="1000" height="40.46" fill="#b22234"/>
-  <rect y="404.60" width="1000" height="40.46" fill="#b22234"/>
-  <rect y="485.52" width="1000" height="40.48" fill="#b22234"/>
-  <rect x="0" y="0" width="400" height="283.22" fill="#3c3b6e"/>
-  <g id="stars"></g>
-</svg>
-<div id="flagOverlay"></div>
-
-<!-- CONTAINER UTAMA -->
-<div class="outer">
-  <!-- BAGIAN ATAS: ACC TOOL & GENERATOR AKUN -->
-  <div class="main-layout">
+  <div class="dashboard-wrapper">
     
-    <!-- BAGIAN KIRI: ACC TOOL (3 KOLOM BERJAJAR: TITEL FYP, TOPIK, LINK) -->
-    <div class="frame">
-      <div class="global-actions">
-        <button class="btn-save-all" id="btn-save-all">💾 Save Sisa Data (.txt)</button>
+    <!-- BARIS ATAS (50% USERNAME, 50% GENERATOR AKUN) -->
+    <div class="top-row">
+      
+      <!-- KIRI: USERNAME -->
+      <div class="card">
+        <div class="card-title">USERNAME</div>
+        <div class="inner-box">
+          <textarea rows="4" placeholder="USERNAME"></textarea>
+          <div class="count-text">Jumlah: 0</div>
+        </div>
+
+        <div class="inner-box">
+          <input type="text" value="1" style="margin-bottom: 5px;">
+          <div class="btn-group">
+            <button class="btn-blue btn-flex">Get ACC</button>
+            <button class="btn-green btn-flex">Copy ACC</button>
+          </div>
+          <div style="display: flex; gap: 4px;">
+            <input type="text" value="Ngelead085" readonly>
+            <button class="btn-pink">📋 Copy Pwd</button>
+          </div>
+        </div>
+
+        <div class="inner-box">
+          <textarea rows="2" readonly>Hasil Get ACC akan muncul di sini</textarea>
+        </div>
       </div>
-      <div class="wrap">
-        <div class="grid" id="grid"></div>
+
+      <!-- KANAN: GENERATOR AKUN (Input Password & Tombol Copy Pwd Telah Dihapus) -->
+      <div class="card">
+        <div class="card-title">GENERATOR AKUN</div>
+        <div class="inner-box">
+          <textarea rows="5">Judy Riley
+Betsy Shepherd
+Rita Bowers
+Billie Warner
+Brittany Craig</textarea>
+        </div>
+
+        <div style="margin-top: 10px;">
+          <div class="account-item"><span>Teri McMahon</span> <button>📋 Salin</button></div>
+          <div class="account-item"><span>terimcmahon45579</span> <button>📋 Salin</button></div>
+          <div class="account-item"><span>terimcmahon_51762</span> <button>📋 Salin</button></div>
+          <div class="account-item"><span>teri4399221</span> <button>📋 Salin</button></div>
+          <div class="account-item"><span>teri_3598584</span> <button>📋 Salin</button></div>
+        </div>
       </div>
+
     </div>
 
-    <!-- BAGIAN KANAN: GENERATOR AKUN / NAMA -->
-    <div class="gen-frame">
-      <div class="col-title" style="margin: -16px -16px 10px -16px;">Generator Akun</div>
-      <div class="card" style="margin-bottom: 10px;">
-        <textarea id="nameInput" rows="4" placeholder="Tulis nama di sini, satu nama per baris"></textarea>
+    <!-- BARIS BAWAH (FULL WIDTH: TITEL FYP, TOPIK, LINK) -->
+    <div class="bottom-row">
+      <div class="card">
+        <button class="btn-orange" style="width: 100%; text-align: center; margin-bottom: 8px;">💾 Save Sisa Data (.txt)</button>
+        
+        <div class="fyp-columns">
+          
+          <!-- Kolom 1: TITEL FYP -->
+          <div>
+            <div class="card-title">TITEL FYP</div>
+            <div class="inner-box">
+              <textarea rows="4">Good morning 🐱
+#####
+us us
+#####
+📷 photo</textarea>
+              <div class="count-text">Jumlah: 2111</div>
+            </div>
+            <div class="inner-box">
+              <input type="text" value="1" style="margin-bottom: 4px;">
+              <div class="btn-group">
+                <button class="btn-blue btn-flex">Get ACC</button>
+                <button class="btn-green btn-flex">Copy ACC</button>
+              </div>
+            </div>
+            <div class="inner-box">
+              <textarea rows="2" readonly>Dog Style 🐩</textarea>
+            </div>
+          </div>
+
+          <!-- Kolom 2: TOPIK -->
+          <div>
+            <div class="card-title">TOPIK</div>
+            <div class="inner-box">
+              <textarea rows="4">Dating Threads
+Sent you a friend request
+Dating Threads
+Sent you a friend request</textarea>
+              <div class="count-text">Jumlah: 2688</div>
+            </div>
+            <div class="inner-box">
+              <input type="text" value="1" style="margin-bottom: 4px;">
+              <div class="btn-group">
+                <button class="btn-blue btn-flex">Get ACC</button>
+                <button class="btn-green btn-flex">Copy ACC</button>
+              </div>
+            </div>
+            <div class="inner-box">
+              <textarea rows="2" readonly>Hasil Get ACC akan muncul di sini</textarea>
+            </div>
+          </div>
+
+          <!-- Kolom 3: LINK -->
+          <div>
+            <div class="card-title">LINK</div>
+            <div class="inner-box">
+              <textarea rows="4">https://lillie-liveaccessprivatroom04.pages.dev</textarea>
+              <div class="count-text">Jumlah: 206</div>
+            </div>
+            <div class="inner-box">
+              <input type="text" value="1" style="margin-bottom: 4px;">
+              <div class="btn-group">
+                <button class="btn-blue btn-flex">Get ACC</button>
+                <button class="btn-green btn-flex">Copy ACC</button>
+              </div>
+            </div>
+            <div class="inner-box">
+              <textarea rows="2" readonly>Hasil Get ACC akan muncul di sini</textarea>
+            </div>
+          </div>
+
+        </div>
       </div>
-      <div class="gen-controls">
-        <button id="btnAcak">🔄 Acak nama</button>
-        <input id="pwdInputMain" type="text" placeholder="your custom password" />
-        <button id="btnCopyPwdMain">📋 Copy Pwd</button>
-      </div>
-      <div id="gen-rows"></div>
     </div>
 
   </div>
 
-  <!-- BAGIAN BAWAH: KOLOM TERPISAH UNTUK USERNAME (FULL LEBAR SEPERTI DI ATAS) -->
-  <div class="bottom-frame">
-    <div id="username-container"></div>
-  </div>
-</div>
-
-<script>
-/* BUAT 50 BINTANG BENDERA USA */
-const starsGroup = document.getElementById("stars");
-const starPoints = ["0,-9", "2.65,-2.78", "8.56,-2.78", "3.1,1.06", "5.3,7.28", "0,3.6", "-5.3,7.28", "-3.1,1.06", "-8.56,-2.78", "-2.65,-2.78"].join(" ");
-for(let row = 0; row < 9; row++){
-  const count = row % 2 === 0 ? 6 : 5;
-  const y = 18 + row * 31;
-  for(let col = 0; col < count; col++){
-    const x = row % 2 === 0 ? 20 + col * 72 : 56 + col * 72;
-    const star = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-    star.setAttribute("points", starPoints);
-    star.setAttribute("transform", `translate(${x},${y}) scale(0.9)`);
-    star.setAttribute("fill", "#ffffff");
-    starsGroup.appendChild(star);
-  }
-}
-
-/* ==========================================================
-   KODE BAGIAN 1: ACC TOOL
-   ========================================================== */
-const columns = [
-  { id: "col1", title: "TITEL FYP", mode: "hash", inputLabel: "Mau dikeluarkan berapa UID?" },
-  { id: "col2", title: "TOPIK", mode: "line", inputLabel: "Mau dikeluarkan berapa baris?" },
-  { id: "col3", title: "LINK", mode: "line", inputLabel: "Mau dikeluarkan berapa baris?" }
-];
-
-const usernameColumn = { id: "col4", title: "USERNAME", mode: "line", inputLabel: "Mau dikeluarkan berapa baris?", showPwdControl: true };
-
-const grid = document.getElementById("grid");
-
-// Render 3 kolom kiri
-columns.forEach(col => {
-  grid.appendChild(createColumnElement(col));
-});
-
-// Render kolom USERNAME di container bawah (Full Width)
-const usernameContainer = document.getElementById("username-container");
-usernameContainer.appendChild(createColumnElement(usernameColumn));
-
-function createColumnElement(col){
-  const el = document.createElement("div");
-  el.className = "col";
-  
-  let pwdControlHtml = "";
-  if(col.showPwdControl) {
-    pwdControlHtml = `
-      <div class="pwd-controls">
-        <input type="text" class="pwd-input" id="${col.id}-pwd" placeholder="your custom password" />
-        <button class="btn-copy-pwd" id="${col.id}-copy-pwd">📋 Copy Pwd</button>
-      </div>
-    `;
-  }
-
-  el.innerHTML = `
-    <div class="col-title">${col.title}</div>
-    <div class="card">
-      <textarea class="in-area" id="${col.id}-input" placeholder="${col.title}"></textarea>
-      <div class="meta">
-        <b>Jumlah:</b>
-        <span id="${col.id}-count">0</span>
-      </div>
-    </div>
-
-    <div class="card control-card">
-      <span class="field-label">${col.inputLabel}</span>
-      <input type="number" id="${col.id}-idx" min="1" value="1">
-      <div class="row">
-        <button class="btn-get" id="${col.id}-get">Get ACC</button>
-        <button class="btn-copy" id="${col.id}-copy">Copy ACC</button>
-      </div>
-      ${pwdControlHtml}
-      <div class="status" id="${col.id}-status"></div>
-    </div>
-
-    <div class="card">
-      <textarea class="out-area" id="${col.id}-output" placeholder="Hasil Get ACC akan muncul di sini"></textarea>
-    </div>
-  `;
-  return el;
-}
-
-function splitHash(raw){
-  const lines = raw.split("\n");
-  const items = [];
-  let current = [];
-  for(const line of lines){
-    if(/^#{3,}$/.test(line.trim())){
-      if(current.length > 0){
-        const value = current.join("\n").trim();
-        if(value !== ""){ items.push(value); }
-        current = [];
-      }
-      continue;
-    }
-    current.push(line);
-  }
-  if(current.length > 0){
-    const value = current.join("\n").trim();
-    if(value !== ""){ items.push(value); }
-  }
-  return items.filter(item => item.length > 0);
-}
-
-function joinHash(items){
-  return items.join("\n#####\n");
-}
-
-function splitLines(raw){
-  return raw.split("\n").filter(line => line.trim() !== "");
-}
-
-function joinLines(items){
-  return items.join("\n");
-}
-
-function setStatus(colId, msg, type){
-  const status = document.getElementById(`${colId}-status`);
-  if(!status) return;
-  status.textContent = msg;
-  status.className = "status" + (type ? " " + type : "");
-}
-
-function initColumn(col){
-  const inputArea = document.getElementById(`${col.id}-input`);
-  const countLabel = document.getElementById(`${col.id}-count`);
-  const idxInput = document.getElementById(`${col.id}-idx`);
-  const getBtn = document.getElementById(`${col.id}-get`);
-  const copyBtn = document.getElementById(`${col.id}-copy`);
-  const outputArea = document.getElementById(`${col.id}-output`);
-
-  const splitFn = col.mode === "hash" ? splitHash : splitLines;
-  const joinFn = col.mode === "hash" ? joinHash : joinLines;
-
-  const savedData = localStorage.getItem(`acctool_${col.id}`);
-  if(savedData !== null){
-    inputArea.value = savedData;
-  }
-
-  // Handle Password control jika ada di kolom Username
-  if(col.showPwdControl) {
-    const pwdInput = document.getElementById(`${col.id}-pwd`);
-    const pwdCopyBtn = document.getElementById(`${col.id}-copy-pwd`);
-
-    const savedPwd = localStorage.getItem(`acctool_${col.id}_pwd`);
-    if(savedPwd !== null){
-      pwdInput.value = savedPwd;
-    }
-
-    pwdInput.addEventListener("input", () => {
-      localStorage.setItem(`acctool_${col.id}_pwd`, pwdInput.value);
-    });
-
-    pwdCopyBtn.addEventListener("click", async () => {
-      const pwdVal = pwdInput.value;
-      if(!pwdVal) return;
-      try {
-        await navigator.clipboard.writeText(pwdVal);
-        const originalText = pwdCopyBtn.textContent;
-        pwdCopyBtn.textContent = '✅ Copied';
-        setTimeout(() => { pwdCopyBtn.textContent = originalText; }, 1000);
-      } catch(err) {
-        pwdInput.select();
-        document.execCommand("copy");
-        const originalText = pwdCopyBtn.textContent;
-        pwdCopyBtn.textContent = '✅ Copied';
-        setTimeout(() => { pwdCopyBtn.textContent = originalText; }, 1000);
-      }
-    });
-  }
-
-  function updateCount(){
-    const items = splitFn(inputArea.value);
-    countLabel.textContent = items.length;
-    localStorage.setItem(`acctool_${col.id}`, inputArea.value);
-    return items;
-  }
-
-  inputArea.addEventListener("input", () => {
-    updateCount();
-    setStatus(col.id, "", "");
-  });
-
-  getBtn.addEventListener("click", () => {
-    const items = splitFn(inputArea.value);
-    const n = parseInt(idxInput.value, 10);
-
-    if(!n || n < 1){
-      setStatus(col.id, "Masukkan angka yang valid.", "err");
-      return;
-    }
-
-    if(items.length === 0){
-      outputArea.value = "";
-      setStatus(col.id, "Tidak ada data tersedia.", "err");
-      return;
-    }
-
-    const take = Math.min(n, items.length);
-    const taken = items.slice(0, take);
-    const remaining = items.slice(take);
-
-    outputArea.value = col.mode === "hash" ? joinHash(taken) : joinLines(taken);
-    inputArea.value = joinFn(remaining);
-    updateCount();
-    setStatus(col.id, `${take} item berhasil diambil.`, "ok");
-  });
-
-  copyBtn.addEventListener("click", async () => {
-    if(!outputArea.value.trim()){
-      setStatus(col.id, "Tidak ada isi untuk disalin.", "err");
-      return;
-    }
-
-    try{
-      await navigator.clipboard.writeText(outputArea.value);
-      setStatus(col.id, "Berhasil disalin ke clipboard.", "ok");
-    }catch(error){
-      outputArea.select();
-      document.execCommand("copy");
-      setStatus(col.id, "Berhasil disalin (fallback).", "ok");
-    }
-  });
-
-  updateCount();
-}
-
-// Inisialisasi semua kolom termasuk Username
-[...columns, usernameColumn].forEach(initColumn);
-
-const delimiter = "\n====================[ACC_TOOL_SECTION]====================\n";
-
-document.getElementById("btn-save-all").addEventListener("click", () => {
-  let combinedData = [];
-  [...columns, usernameColumn].forEach(col => {
-    const val = document.getElementById(`${col.id}-input`).value;
-    combinedData.push(`--- ${col.title} ---\n` + val);
-  });
-
-  const blob = new Blob([combinedData.join(delimiter)], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "acc_tool_sisa_data.txt";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-});
-
-
-/* ==========================================================
-   KODE BAGIAN 2: GENERATOR AKUN / NAMA
-   ========================================================== */
-function digitsN(n){
-  let s = '';
-  for(let i=0; i<n; i++){ s += (1 + Math.floor(Math.random()*9)); }
-  return s;
-}
-
-function splitLinesGen(text){
-  return text.split(/\r\n|\r|\n/).map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
-}
-
-let genState = { fullName: '', d3: '', d4: '', d5: '', d6: '' };
-
-function slug(name){ return name.toLowerCase().replace(/\s+/g,''); }
-function firstName(name){ return name.trim().split(/\s+/)[0] || ''; }
-
-function rowConfig(){
-  const full = slug(genState.fullName);
-  const first = slug(firstName(genState.fullName));
-  return [
-    { key: 'name', value: genState.fullName, digitLen: 0 },
-    { key: 'd3', value: full + genState.d3, digitLen: 5 },
-    { key: 'd4', value: full + '_' + genState.d4, digitLen: 5 },
-    { key: 'd5', value: first + genState.d5, digitLen: 7 },
-    { key: 'd6', value: first + '_' + genState.d6, digitLen: 7 }
-  ];
-}
-
-function renderGen(){
-  const rows = rowConfig();
-  const container = document.getElementById('gen-rows');
-  container.innerHTML = '';
-  rows.forEach(function(r){
-    const row = document.createElement('div');
-    row.className = 'gen-row';
-
-    const val = document.createElement('div');
-    val.className = 'val';
-    val.textContent = r.value;
-    row.appendChild(val);
-
-    const btnCopy = document.createElement('button');
-    btnCopy.textContent = '📋 Salin';
-    btnCopy.title = 'Salin';
-    btnCopy.onclick = function(){
-      navigator.clipboard.writeText(r.value).then(function(){
-        btnCopy.textContent = '✅ Disalin';
-        setTimeout(function(){ btnCopy.textContent = '📋 Salin'; }, 1000);
-      });
-    };
-    row.appendChild(btnCopy);
-
-    container.appendChild(row);
-  });
-}
-
-function acakSemua(){
-  const names = splitLinesGen(document.getElementById('nameInput').value);
-  if(names.length === 0) return;
-  const pick = names[Math.floor(Math.random() * names.length)];
-  genState = { fullName: pick, d3: digitsN(5), d4: digitsN(5), d5: digitsN(7), d6: digitsN(7) };
-  renderGen();
-}
-
-document.getElementById('btnAcak').onclick = acakSemua;
-renderGen();
-
-document.getElementById('btnCopyPwdMain').onclick = function(){
-  const pwdVal = document.getElementById('pwdInputMain').value;
-  if(!pwdVal) return;
-  const btn = document.getElementById('btnCopyPwdMain');
-  navigator.clipboard.writeText(pwdVal).then(function(){
-    const original = btn.textContent;
-    btn.textContent = '✅ Copied';
-    setTimeout(function(){ btn.textContent = original; }, 1000);
-  });
-};
-</script>
 </body>
 </html>
