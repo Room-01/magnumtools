@@ -1,0 +1,315 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACC Tool</title>
+<style>
+  :root{
+    --bg: #eef1f5;
+    --card: #6b7280;
+    --field: #6b7280;
+    --border: #000000;
+    --text: #1f2430;
+    --muted: #6b7280;
+    --blue: #2563eb;
+    --green: #15803d;
+    --green-dark: #12692f;
+    --radius: 10px;
+  }
+  *{box-sizing:border-box;}
+  html, body{ height:100%; }
+  body{
+    margin:0;
+    padding:24px 12px;
+  body{
+  margin:0;
+  padding:24px 12px;
+  background:
+    linear-gradient(rgba(0,0,0,0.28), rgba(0,0,0,0.28)),
+    url("https://commons.wikimedia.org/wiki/Special:Redirect/file/Flag_of_the_United_States.png");
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color:var(--text);
+  }
+
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color:var(--text);
+  }
+  .outer{
+    background: transparent;
+    border-radius:0;
+    padding:14px;
+    max-width:1400px;
+    margin:0 auto;
+  }
+  .frame{
+    background: transparent;
+    border:5px solid #000000;
+    border-radius:0;
+    padding:16px;
+  }
+  .wrap{
+    overflow-x:auto;
+    background:transparent;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(5, minmax(180px, 1fr));
+    gap:2px;
+    min-width:960px;
+    background:transparent;
+  }
+  .col{
+    background:#3a3f47;
+    border-radius:0;
+    box-shadow: 0 10px 30px rgba(20,20,40,0.06);
+    padding:12px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .col-title{
+    font-size:12px;
+    font-weight:700;
+    color:#ffffff;
+    text-transform:uppercase;
+    letter-spacing:.4px;
+    background:#000000;
+    padding:8px 10px;
+    margin:-12px -12px 0 -12px;
+    text-shadow: 0 0 6px #ffffff, 0 0 12px #ffffff, 0 0 20px rgba(255,255,255,0.6);
+  }
+  .card{
+    background:#5a606b;
+    border:1px solid var(--border);
+    border-radius:0;
+    padding:10px;
+  }
+  .control-card{
+    padding:3px 6px;
+  }
+  .control-card .row{
+    margin-top:3px;
+    gap:4px;
+  }
+  .control-card .status{
+    margin-top:2px;
+    min-height:0;
+  }
+  textarea, input[type="number"]{
+    width:100%;
+    background:var(--field);
+    border:1px solid var(--border);
+    border-radius:0;
+    padding:8px 9px;
+    font-size:12px;
+    color:#ffffff;
+    font-family: inherit;
+    resize:vertical;
+  }
+  .in-area{
+    min-height:100px;
+    color:#ffffff;
+    line-height:1.45;
+  }
+  .out-area{
+    min-height:80px;
+    color:#ffffff;
+    line-height:1.45;
+  }
+  .meta{
+    margin-top:6px;
+    font-size:12px;
+    color:#ffffff;
+  }
+  .meta b{ font-weight:700; }
+  .meta span{ color:#93c5fd; font-weight:700; }
+  .row{
+    display:flex;
+    gap:6px;
+    margin-top:8px;
+  }
+  button{
+    border:none;
+    border-radius:0;
+    padding:5px 6px;
+    font-size:11px;
+    font-weight:600;
+    cursor:pointer;
+    color:#fff;
+    flex:1;
+    transition: filter .15s ease, transform .05s ease;
+  }
+  button:active{ transform: translateY(1px); }
+  .btn-get{ background:var(--blue); }
+  .btn-get:hover{ filter:brightness(1.08); }
+  .btn-copy{ background:var(--green); }
+  .btn-copy:hover{ filter:brightness(1.08); }
+  .status{
+    font-size:11px;
+    margin-top:6px;
+    min-height:13px;
+  }
+  .status.ok{ color:var(--green-dark); }
+  .status.err{ color:#b91c1c; }
+  .field-label{
+    display:none;
+  }
+</style>
+</head>
+<body>
+<div class="outer">
+  <div class="frame">
+    <div class="wrap">
+      <div class="grid" id="grid"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Kolom 1: mode "hash" (pisah pakai #####, ambil N item dari atas)
+// Kolom 2-5: mode "line" (per baris, ambil N baris dari atas)
+const columns = [
+  { id: 'col1', title: 'TITEL FYP', mode: 'hash', inputLabel: 'Mau dikeluarkan berapa UID?' },
+  { id: 'col2', title: 'TOPIK',     mode: 'line', inputLabel: 'Mau dikeluarkan berapa baris?' },
+  { id: 'col3', title: 'LINK',  mode: 'line', inputLabel: 'Mau dikeluarkan berapa baris?' },
+  { id: 'col4', title: 'USERNAME',  mode: 'line', inputLabel: 'Mau dikeluarkan berapa baris?' },
+  { id: 'col5', title: 'ACC',       mode: 'line', inputLabel: 'Mau dikeluarkan berapa baris?' },
+];
+
+const grid = document.getElementById('grid');
+
+columns.forEach(col => {
+  const el = document.createElement('div');
+  el.className = 'col';
+  el.innerHTML = `
+    <div class="col-title">${col.title}</div>
+    <div class="card">
+      <textarea class="in-area" id="${col.id}-input" placeholder="TITEL FYP"></textarea>
+      <div class="meta"><b>Jumlah:</b> <span id="${col.id}-count">0</span></div>
+    </div>
+    <div class="card control-card">
+      <span class="field-label">${col.inputLabel}</span>
+      <input type="number" id="${col.id}-idx" min="1" value="1">
+      <div class="row">
+        <button class="btn-get" id="${col.id}-get">Get ACC</button>
+        <button class="btn-copy" id="${col.id}-copy">Copy ACC</button>
+      </div>
+      <div class="status" id="${col.id}-status"></div>
+    </div>
+    <div class="card">
+      <textarea class="out-area" id="${col.id}-output" placeholder="Hasil Get ACC akan muncul di sini"></textarea>
+    </div>
+  `;
+  grid.appendChild(el);
+});
+
+// --- helpers ---
+function splitHash(raw) {
+  const lines = raw.split('\n');
+  const items = [];
+  let current = [];
+  for (const line of lines) {
+    if (/^#{3,}$/.test(line.trim())) {
+      if (current.length > 0) {
+        items.push(current.join('\n').trim());
+        current = [];
+      }
+      continue;
+    }
+    current.push(line);
+  }
+  if (current.length > 0 && current.join('\n').trim() !== '') {
+    items.push(current.join('\n').trim());
+  }
+  return items.filter(it => it.length > 0);
+}
+function joinHash(items) {
+  return items.join('\n#####\n');
+}
+function splitLines(raw) {
+  return raw.split('\n').filter(l => l.trim() !== '');
+}
+function joinLines(items) {
+  return items.join('\n');
+}
+
+function setStatus(colId, msg, type) {
+  const s = document.getElementById(`${colId}-status`);
+  s.textContent = msg;
+  s.className = 'status' + (type ? ' ' + type : '');
+}
+
+function initColumn(col) {
+  const inputArea = document.getElementById(`${col.id}-input`);
+  const countLabel = document.getElementById(`${col.id}-count`);
+  const idxInput = document.getElementById(`${col.id}-idx`);
+  const getBtn = document.getElementById(`${col.id}-get`);
+  const copyBtn = document.getElementById(`${col.id}-copy`);
+  const outputArea = document.getElementById(`${col.id}-output`);
+
+  const splitFn = col.mode === 'hash' ? splitHash : splitLines;
+  const joinFn = col.mode === 'hash' ? joinHash : joinLines;
+
+  function updateCount() {
+    const items = splitFn(inputArea.value);
+    countLabel.textContent = items.length;
+    return items;
+  }
+
+  inputArea.addEventListener('input', () => {
+    updateCount();
+    setStatus(col.id, '', '');
+  });
+
+  getBtn.addEventListener('click', () => {
+    const items = splitFn(inputArea.value);
+    const n = parseInt(idxInput.value, 10);
+
+    if (!n || n < 1) {
+      setStatus(col.id, 'Masukkan angka yang valid.', 'err');
+      return;
+    }
+    if (items.length === 0) {
+      outputArea.value = '';
+      setStatus(col.id, 'Tidak ada UID tersedia.', 'err');
+      return;
+    }
+
+    const take = Math.min(n, items.length);
+    const taken = items.slice(0, take);
+    const remaining = items.slice(take);
+
+    outputArea.value = col.mode === 'hash' ? joinHash(taken) : joinLines(taken);
+    inputArea.value = joinFn(remaining);
+    updateCount();
+    setStatus(col.id, `${take} UID berhasil diambil.`, 'ok');
+  });
+
+  copyBtn.addEventListener('click', async () => {
+    if (!outputArea.value.trim()) {
+      setStatus(col.id, 'Tidak ada isi untuk disalin.', 'err');
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(outputArea.value);
+      setStatus(col.id, 'Berhasil disalin ke clipboard.', 'ok');
+    } catch (e) {
+      outputArea.select();
+      document.execCommand('copy');
+      setStatus(col.id, 'Berhasil disalin (fallback).', 'ok');
+    }
+  });
+
+  updateCount();
+}
+
+columns.forEach(initColumn);
+</script>
+</body>
+</html>
