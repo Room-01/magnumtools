@@ -107,6 +107,7 @@
     .btn-green { background-color: #008a3c; }
     .btn-orange { background-color: #e65c00; }
     .btn-pink { background-color: #aa2b57; }
+    .btn-purple { background-color: #6f42c1; }
     .btn-dark { background-color: #1a1a1a; border: 1px solid #555; }
 
     .btn-flex { flex: 1; }
@@ -261,7 +262,7 @@
 
     </div>
 
-    <!-- BARIS BAWAH (SINGLE LOAD FILE & SAVE SISA DATA) -->
+    <!-- BARIS BAWAH (SINGLE LOAD FILE, SAVE SISA DATA, UNDO/REDO) -->
     <div class="bottom-row">
       <div class="card">
         <!-- BARIS TOMBOL AKSI UTAMA DI ATAS KOLOM BAWAH -->
@@ -270,6 +271,8 @@
             <input type="file" accept=".txt" onchange="loadSingleFile(event)">
           </label>
           <button class="btn-orange" style="flex: 1; text-align: center;" onclick="saveSisaDataKolomBawah()">💾 Save Sisa Data (.txt)</button>
+          <button class="btn-purple" onclick="undoBottomData()">↩️ Undo</button>
+          <button class="btn-purple" onclick="redoBottomData()">↪️ Redo</button>
           <button class="btn-dark" onclick="clearBottomData()">🗑️ Clear Data Kolom Bawah</button>
         </div>
         
@@ -339,6 +342,59 @@
   </div>
 
   <script>
+    // --- SYSTEM UNDO & REDO KHUSUS KOLOM BAWAH ---
+    let historyStack = [];
+    let historyStep = -1;
+    let isUndoRedoAction = false;
+
+    function getBottomState() {
+      return {
+        titel: document.getElementById('titel-input').value,
+        topik: document.getElementById('topik-input').value,
+        link: document.getElementById('link-input').value
+      };
+    }
+
+    function saveState() {
+      if (isUndoRedoAction) return;
+
+      const currentState = getBottomState();
+      
+      if (historyStep >= 0) {
+        const last = historyStack[historyStep];
+        if (last.titel === currentState.titel && last.topik === currentState.topik && last.link === currentState.link) {
+          return;
+        }
+      }
+
+      historyStack = historyStack.slice(0, historyStep + 1);
+      historyStack.push(currentState);
+      historyStep++;
+    }
+
+    function applyState(state) {
+      isUndoRedoAction = true;
+      document.getElementById('titel-input').value = state.titel;
+      document.getElementById('topik-input').value = state.topik;
+      document.getElementById('link-input').value = state.link;
+      updateCounts();
+      isUndoRedoAction = false;
+    }
+
+    function undoBottomData() {
+      if (historyStep > 0) {
+        historyStep--;
+        applyState(historyStack[historyStep]);
+      }
+    }
+
+    function redoBottomData() {
+      if (historyStep < historyStack.length - 1) {
+        historyStep++;
+        applyState(historyStack[historyStep]);
+      }
+    }
+
     // --- LOAD FILE SINGLE UNTUK KETIGA KOLOM BAWAH ---
     function loadSingleFile(event) {
       const file = event.target.files[0];
@@ -367,6 +423,7 @@
         }
 
         updateCounts();
+        saveState();
       };
       reader.readAsText(file);
       event.target.value = '';
@@ -393,6 +450,7 @@
         document.getElementById('topik-input').value = '';
         document.getElementById('link-input').value = '';
         updateCounts();
+        saveState();
       }
     }
 
@@ -411,9 +469,15 @@
       titelCount.textContent = `Jumlah: ${blocks.length}`;
     }
 
-    ['username', 'titel', 'topik', 'link'].forEach(key => {
-      document.getElementById(`${key}-input`).addEventListener('input', updateCounts);
+    ['titel', 'topik', 'link'].forEach(key => {
+      const el = document.getElementById(`${key}-input`);
+      el.addEventListener('input', () => {
+        updateCounts();
+        saveState();
+      });
     });
+
+    document.getElementById('username-input').addEventListener('input', updateCounts);
 
     function getAccTitelFyp() {
       const inputEl = document.getElementById('titel-input');
@@ -430,6 +494,7 @@
       inputEl.value = blocks.join('\n#####\n');
 
       updateCounts();
+      saveState();
     }
 
     function getAccStandard(key) {
@@ -447,6 +512,9 @@
       inputEl.value = lines.join('\n');
 
       updateCounts();
+      if (['titel', 'topik', 'link'].includes(key)) {
+        saveState();
+      }
     }
 
     function copyAcc(key) {
@@ -548,6 +616,7 @@
 
     // Inisialisasi awal
     updateCounts();
+    saveState();
     acakSemua();
   </script>
 
