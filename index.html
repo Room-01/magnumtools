@@ -234,7 +234,7 @@
             <button class="btn-green btn-flex" onclick="copyAcc('username')">Copy ACC</button>
           </div>
           <div style="display: flex; gap: 4px;">
-            <input type="text" id="username-pwd" value="Ngelead085" readonly>
+            <input type="text" id="username-pwd" value="" placeholder="Password" readonly>
             <button class="btn-pink" onclick="copyText('username-pwd')">📋 Copy Pwd</button>
           </div>
         </div>
@@ -249,11 +249,7 @@
         <div class="card-title">GENERATOR AKUN</div>
         
         <div style="margin-bottom: 8px;">
-          <textarea id="nameInput" rows="5" placeholder="Tulis nama di sini, satu nama per baris">Judy Riley
-Betsy Shepherd
-Rita Bowers
-Billie Warner
-Brittany Craig</textarea>
+          <textarea id="nameInput" rows="5" placeholder="Tulis nama di sini, satu nama per baris"></textarea>
         </div>
 
         <div class="cantika-controls">
@@ -283,11 +279,7 @@ Brittany Craig</textarea>
           <div>
             <div class="card-title">TITEL FYP</div>
             <div class="inner-box">
-              <textarea id="titel-input" rows="4">Good morning 🐱
-#####
-us us
-#####
-📷 photo</textarea>
+              <textarea id="titel-input" rows="4" placeholder="Masukkan Titel FYP"></textarea>
               <div class="count-text" id="titel-count">Jumlah: 0</div>
             </div>
             <div class="inner-box">
@@ -306,10 +298,7 @@ us us
           <div>
             <div class="card-title">TOPIK</div>
             <div class="inner-box">
-              <textarea id="topik-input" rows="4">Dating Threads
-Sent you a friend request
-Dating Threads
-Sent you a friend request</textarea>
+              <textarea id="topik-input" rows="4" placeholder="Masukkan Topik"></textarea>
               <div class="count-text" id="topik-count">Jumlah: 0</div>
             </div>
             <div class="inner-box">
@@ -328,7 +317,7 @@ Sent you a friend request</textarea>
           <div>
             <div class="card-title">LINK</div>
             <div class="inner-box">
-              <textarea id="link-input" rows="4">https://lillie-liveaccessprivatroom04.pages.dev</textarea>
+              <textarea id="link-input" rows="4" placeholder="Masukkan Link"></textarea>
               <div class="count-text" id="link-count">Jumlah: 0</div>
             </div>
             <div class="inner-box">
@@ -359,7 +348,6 @@ Sent you a friend request</textarea>
       reader.onload = function(e) {
         const text = e.target.result;
         
-        // Pengecekan jika file berisi format header (hasil Save Sisa Data)
         if (text.includes('=== TITEL FYP ===') || text.includes('=== TOPIK ===') || text.includes('=== LINK ===')) {
           const parts = text.split(/===\s*(TITEL FYP|TOPIK|LINK)\s*===/);
           let currentHeader = '';
@@ -375,15 +363,13 @@ Sent you a friend request</textarea>
             }
           }
         } else {
-          // Jika file txt biasa tanpa header, isi default dipasok ke kolom TITEL FYP
           document.getElementById('titel-input').value = text;
         }
 
         updateCounts();
-        saveToLocalStorage();
       };
       reader.readAsText(file);
-      event.target.value = ''; // Reset input file
+      event.target.value = '';
     }
 
     // --- SAVE SISA DATA HANYA UNTUK KOLOM BAWAH (TITEL, TOPIK, LINK) ---
@@ -407,35 +393,6 @@ Sent you a friend request</textarea>
         document.getElementById('topik-input').value = '';
         document.getElementById('link-input').value = '';
         updateCounts();
-        saveToLocalStorage();
-      }
-    }
-
-    // --- AUTO SAVE & RESTORE ---
-    function saveToLocalStorage() {
-      const dataToSave = {
-        username: document.getElementById('username-input').value,
-        genNames: document.getElementById('nameInput').value,
-        titel: document.getElementById('titel-input').value,
-        topik: document.getElementById('topik-input').value,
-        link: document.getElementById('link-input').value
-      };
-      localStorage.setItem('cantika_dashboard_data', JSON.stringify(dataToSave));
-    }
-
-    function restoreFromLocalStorage() {
-      const saved = localStorage.getItem('cantika_dashboard_data');
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          if (parsed.username !== undefined) document.getElementById('username-input').value = parsed.username;
-          if (parsed.genNames !== undefined) document.getElementById('nameInput').value = parsed.genNames;
-          if (parsed.titel !== undefined) document.getElementById('titel-input').value = parsed.titel;
-          if (parsed.topik !== undefined) document.getElementById('topik-input').value = parsed.topik;
-          if (parsed.link !== undefined) document.getElementById('link-input').value = parsed.link;
-        } catch (e) {
-          console.error('Failed to parse local storage', e);
-        }
       }
     }
 
@@ -452,8 +409,6 @@ Sent you a friend request</textarea>
       const titelCount = document.getElementById('titel-count');
       const blocks = titelInput.value.split(/\n?#####\n?/).filter(b => b.trim() !== '');
       titelCount.textContent = `Jumlah: ${blocks.length}`;
-
-      saveToLocalStorage();
     }
 
     ['username', 'titel', 'topik', 'link'].forEach(key => {
@@ -503,10 +458,12 @@ Sent you a friend request</textarea>
 
     function copyText(elementIdOrText, isDirectText = false) {
       let textToCopy = isDirectText ? elementIdOrText : document.getElementById(elementIdOrText).value;
-      navigator.clipboard.writeText(textToCopy);
+      if (textToCopy) {
+        navigator.clipboard.writeText(textToCopy);
+      }
     }
 
-    // --- LOGIKA UTUH CANTIKA ACC ---
+    // --- LOGIKA CANTIKA ACC ---
     function digitsN(n){
       let s = '';
       for(let i=0; i<n; i++){ s += (1 + Math.floor(Math.random()*9)); }
@@ -587,13 +544,9 @@ Sent you a friend request</textarea>
     }
 
     document.getElementById('btnAcak').onclick = acakSemua;
-    document.getElementById('nameInput').addEventListener('input', function() {
-      acakSemua();
-      saveToLocalStorage();
-    });
+    document.getElementById('nameInput').addEventListener('input', acakSemua);
 
     // Inisialisasi awal
-    restoreFromLocalStorage();
     updateCounts();
     acakSemua();
   </script>
