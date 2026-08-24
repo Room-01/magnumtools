@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Layout Generator Exact Cantika Acc</title>
+  <title>MAGNUM ACC</title>
   <style>
     * {
       box-sizing: border-box;
@@ -107,8 +107,30 @@
     .btn-green { background-color: #008a3c; }
     .btn-orange { background-color: #e65c00; }
     .btn-pink { background-color: #aa2b57; }
+    .btn-dark { background-color: #1a1a1a; border: 1px solid #555; }
 
     .btn-flex { flex: 1; }
+
+    /* File Input Styling Gabungan */
+    input[type="file"] {
+      display: none;
+    }
+
+    .file-label-main {
+      display: inline-block;
+      background: #252525;
+      color: #4da6ff;
+      border: 1px dashed #4da6ff;
+      text-align: center;
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+    .file-label-main:hover {
+      background: #333;
+    }
 
     /* Layout 3 Kolom FYP */
     .fyp-columns {
@@ -194,7 +216,7 @@
 
   <div class="dashboard-wrapper">
     
-    <!-- BARIS ATAS (50% USERNAME, 50% GENERATOR AKUN) -->
+    <!-- BARIS ATAS (USERNAME & GENERATOR AKUN) -->
     <div class="top-row">
       
       <!-- KIRI: USERNAME -->
@@ -234,7 +256,6 @@ Billie Warner
 Brittany Craig</textarea>
         </div>
 
-        <!-- HANYA TOMBOL ACAK NAMA -->
         <div class="cantika-controls">
           <button id="btnAcak">🔄 Acak nama</button>
         </div>
@@ -244,14 +265,21 @@ Brittany Craig</textarea>
 
     </div>
 
-    <!-- BARIS BAWAH (FULL WIDTH: TITEL FYP, TOPIK, LINK) -->
+    <!-- BARIS BAWAH (SINGLE LOAD FILE & SAVE SISA DATA) -->
     <div class="bottom-row">
       <div class="card">
-        <button class="btn-orange" style="width: 100%; text-align: center; margin-bottom: 8px;" onclick="saveSisaData()">💾 Save Sisa Data (.txt)</button>
+        <!-- BARIS TOMBOL AKSI UTAMA DI ATAS KOLOM BAWAH -->
+        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+          <label class="file-label-main">📂 Load File (.txt)
+            <input type="file" accept=".txt" onchange="loadSingleFile(event)">
+          </label>
+          <button class="btn-orange" style="flex: 1; text-align: center;" onclick="saveSisaDataKolomBawah()">💾 Save Sisa Data (.txt)</button>
+          <button class="btn-dark" onclick="clearBottomData()">🗑️ Clear Data Kolom Bawah</button>
+        </div>
         
         <div class="fyp-columns">
           
-          <!-- Kolom 1: TITEL FYP (PEMISAH #####) -->
+          <!-- Kolom 1: TITEL FYP -->
           <div>
             <div class="card-title">TITEL FYP</div>
             <div class="inner-box">
@@ -322,7 +350,96 @@ Sent you a friend request</textarea>
   </div>
 
   <script>
-    // --- FUNGSIONALITAS PENGHITUNG DATA & GET ACC ---
+    // --- LOAD FILE SINGLE UNTUK KETIGA KOLOM BAWAH ---
+    function loadSingleFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const text = e.target.result;
+        
+        // Pengecekan jika file berisi format header (hasil Save Sisa Data)
+        if (text.includes('=== TITEL FYP ===') || text.includes('=== TOPIK ===') || text.includes('=== LINK ===')) {
+          const parts = text.split(/===\s*(TITEL FYP|TOPIK|LINK)\s*===/);
+          let currentHeader = '';
+
+          for (let i = 0; i < parts.length; i++) {
+            const part = parts[i].trim();
+            if (part === 'TITEL FYP' || part === 'TOPIK' || part === 'LINK') {
+              currentHeader = part;
+            } else if (currentHeader) {
+              if (currentHeader === 'TITEL FYP') document.getElementById('titel-input').value = part;
+              if (currentHeader === 'TOPIK') document.getElementById('topik-input').value = part;
+              if (currentHeader === 'LINK') document.getElementById('link-input').value = part;
+            }
+          }
+        } else {
+          // Jika file txt biasa tanpa header, isi default dipasok ke kolom TITEL FYP
+          document.getElementById('titel-input').value = text;
+        }
+
+        updateCounts();
+        saveToLocalStorage();
+      };
+      reader.readAsText(file);
+      event.target.value = ''; // Reset input file
+    }
+
+    // --- SAVE SISA DATA HANYA UNTUK KOLOM BAWAH (TITEL, TOPIK, LINK) ---
+    function saveSisaDataKolomBawah() {
+      const titelData = document.getElementById('titel-input').value;
+      const topikData = document.getElementById('topik-input').value;
+      const linkData = document.getElementById('link-input').value;
+
+      const content = `=== TITEL FYP ===\n${titelData}\n\n=== TOPIK ===\n${topikData}\n\n=== LINK ===\n${linkData}`;
+
+      const blob = new Blob([content], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'Sisa_Data_Kolom_Bawah.txt';
+      a.click();
+    }
+
+    function clearBottomData() {
+      if (confirm('Apakah Anda yakin ingin mengosongkan data kolom bawah (Titel, Topik, Link)?')) {
+        document.getElementById('titel-input').value = '';
+        document.getElementById('topik-input').value = '';
+        document.getElementById('link-input').value = '';
+        updateCounts();
+        saveToLocalStorage();
+      }
+    }
+
+    // --- AUTO SAVE & RESTORE ---
+    function saveToLocalStorage() {
+      const dataToSave = {
+        username: document.getElementById('username-input').value,
+        genNames: document.getElementById('nameInput').value,
+        titel: document.getElementById('titel-input').value,
+        topik: document.getElementById('topik-input').value,
+        link: document.getElementById('link-input').value
+      };
+      localStorage.setItem('cantika_dashboard_data', JSON.stringify(dataToSave));
+    }
+
+    function restoreFromLocalStorage() {
+      const saved = localStorage.getItem('cantika_dashboard_data');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed.username !== undefined) document.getElementById('username-input').value = parsed.username;
+          if (parsed.genNames !== undefined) document.getElementById('nameInput').value = parsed.genNames;
+          if (parsed.titel !== undefined) document.getElementById('titel-input').value = parsed.titel;
+          if (parsed.topik !== undefined) document.getElementById('topik-input').value = parsed.topik;
+          if (parsed.link !== undefined) document.getElementById('link-input').value = parsed.link;
+        } catch (e) {
+          console.error('Failed to parse local storage', e);
+        }
+      }
+    }
+
+    // --- PENGHITUNG DATA & GET ACC ---
     function updateCounts() {
       ['username', 'topik', 'link'].forEach(key => {
         const input = document.getElementById(`${key}-input`);
@@ -335,6 +452,8 @@ Sent you a friend request</textarea>
       const titelCount = document.getElementById('titel-count');
       const blocks = titelInput.value.split(/\n?#####\n?/).filter(b => b.trim() !== '');
       titelCount.textContent = `Jumlah: ${blocks.length}`;
+
+      saveToLocalStorage();
     }
 
     ['username', 'titel', 'topik', 'link'].forEach(key => {
@@ -387,7 +506,7 @@ Sent you a friend request</textarea>
       navigator.clipboard.writeText(textToCopy);
     }
 
-    // --- LOGIKA UTUH DARI CANTIKA ACC ---
+    // --- LOGIKA UTUH CANTIKA ACC ---
     function digitsN(n){
       let s = '';
       for(let i=0; i<n; i++){ s += (1 + Math.floor(Math.random()*9)); }
@@ -458,32 +577,23 @@ Sent you a friend request</textarea>
 
     function acakSemua(){
       const names = splitLines(document.getElementById('nameInput').value);
-      if(names.length === 0) return;
+      if(names.length === 0) {
+        document.getElementById('rows').innerHTML = '';
+        return;
+      }
       const pick = names[Math.floor(Math.random() * names.length)];
       state = { fullName: pick, d3: digitsN(5), d4: digitsN(5), d5: digitsN(7), d6: digitsN(7) };
       render();
     }
 
     document.getElementById('btnAcak').onclick = acakSemua;
-    document.getElementById('nameInput').addEventListener('input', acakSemua);
-
-    // Save Sisa Data (.txt)
-    function saveSisaData() {
-      const usernameData = document.getElementById('username-input').value;
-      const titelData = document.getElementById('titel-input').value;
-      const topikData = document.getElementById('topik-input').value;
-      const linkData = document.getElementById('link-input').value;
-
-      const content = `=== USERNAME ===\n${usernameData}\n\n=== TITEL FYP ===\n${titelData}\n\n=== TOPIK ===\n${topikData}\n\n=== LINK ===\n${linkData}`;
-
-      const blob = new Blob([content], { type: 'text/plain' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'Sisa_Data.txt';
-      a.click();
-    }
+    document.getElementById('nameInput').addEventListener('input', function() {
+      acakSemua();
+      saveToLocalStorage();
+    });
 
     // Inisialisasi awal
+    restoreFromLocalStorage();
     updateCounts();
     acakSemua();
   </script>
