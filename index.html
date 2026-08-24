@@ -1,78 +1,99 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ACC Tool</title>
+
 <style>
   :root{
-    --bg: #eef1f5;
-    --card: #6b7280;
-    --field: #6b7280;
-    --border: #000000;
-    --text: #1f2430;
-    --muted: #6b7280;
-    --blue: #2563eb;
-    --green: #15803d;
-    --green-dark: #12692f;
-    --radius: 10px;
+    --card:#5a606b;
+    --field:#6b7280;
+    --border:#000000;
+    --text:#ffffff;
+    --blue:#2563eb;
+    --green:#15803d;
+    --green-dark:#12692f;
   }
-  *{box-sizing:border-box;}
-  html, body{ height:100%; }
+
+  *{
+    box-sizing:border-box;
+  }
+
+  html,
   body{
-  margin:0;
-  padding:24px 12px;
-
-  background-color:#b22234;
-  background-image:url("https://upload.wikimedia.org/wikipedia/commons/5/5c/Flag_of_the_United_States.svg");
-  background-size:cover;
-  background-position:center center;
-  background-repeat:no-repeat;
-  background-attachment:fixed;
-
-  font-family:"Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  color:var(--text);
-}
-
+    min-height:100%;
   }
 
-    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  body{
+    margin:0;
+    padding:24px 12px;
+    font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     color:var(--text);
+    overflow-x:hidden;
   }
+
+  /* =========================================
+     BACKGROUND BENDERA USA
+     Dibuat langsung dengan SVG - TANPA URL
+     ========================================= */
+
+  #usaFlag{
+    position:fixed;
+    inset:0;
+    width:100vw;
+    height:100vh;
+    z-index:-10;
+    pointer-events:none;
+  }
+
+  /* Sedikit efek gelap agar ACC Tool lebih jelas */
+  #flagOverlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.12);
+    z-index:-9;
+    pointer-events:none;
+  }
+
   .outer{
-    background: transparent;
+    background:transparent;
     border-radius:0;
     padding:14px;
     max-width:1400px;
     margin:0 auto;
   }
+
   .frame{
-    background: transparent;
+    background:rgba(30,35,42,0.88);
     border:5px solid #000000;
     border-radius:0;
     padding:16px;
   }
+
   .wrap{
     overflow-x:auto;
     background:transparent;
   }
+
   .grid{
     display:grid;
-    grid-template-columns: repeat(5, minmax(180px, 1fr));
+    grid-template-columns:repeat(5,minmax(180px,1fr));
     gap:2px;
     min-width:960px;
     background:transparent;
   }
+
   .col{
     background:#3a3f47;
     border-radius:0;
-    box-shadow: 0 10px 30px rgba(20,20,40,0.06);
+    box-shadow:0 10px 30px rgba(20,20,40,0.20);
     padding:12px;
     display:flex;
     flex-direction:column;
     gap:10px;
   }
+
   .col-title{
     font-size:12px;
     font-weight:700;
@@ -82,58 +103,94 @@
     background:#000000;
     padding:8px 10px;
     margin:-12px -12px 0 -12px;
-    text-shadow: 0 0 6px #ffffff, 0 0 12px #ffffff, 0 0 20px rgba(255,255,255,0.6);
+
+    text-shadow:
+      0 0 6px #ffffff,
+      0 0 12px #ffffff,
+      0 0 20px rgba(255,255,255,0.6);
   }
+
   .card{
     background:#5a606b;
-    border:1px solid var(--border);
+    border:1px solid #000000;
     border-radius:0;
     padding:10px;
   }
+
   .control-card{
     padding:3px 6px;
   }
+
   .control-card .row{
     margin-top:3px;
     gap:4px;
   }
+
   .control-card .status{
     margin-top:2px;
     min-height:0;
   }
-  textarea, input[type="number"]{
+
+  textarea,
+  input[type="number"]{
     width:100%;
-    background:var(--field);
-    border:1px solid var(--border);
+    background:#6b7280;
+    border:1px solid #000000;
     border-radius:0;
     padding:8px 9px;
     font-size:12px;
     color:#ffffff;
-    font-family: inherit;
+    font-family:inherit;
     resize:vertical;
+    outline:none;
   }
+
+  textarea::placeholder{
+    color:rgba(255,255,255,0.35);
+  }
+
+  input[type="number"]{
+    color:#ffffff;
+  }
+
+  textarea:focus,
+  input[type="number"]:focus{
+    border-color:#ffffff;
+  }
+
   .in-area{
     min-height:100px;
     color:#ffffff;
     line-height:1.45;
   }
+
   .out-area{
     min-height:80px;
     color:#ffffff;
     line-height:1.45;
   }
+
   .meta{
     margin-top:6px;
     font-size:12px;
     color:#ffffff;
   }
-  .meta b{ font-weight:700; }
-  .meta span{ color:#93c5fd; font-weight:700; }
+
+  .meta b{
+    font-weight:700;
+  }
+
+  .meta span{
+    color:#93c5fd;
+    font-weight:700;
+  }
+
   .row{
     display:flex;
     gap:6px;
     margin-top:8px;
   }
+
   button{
     border:none;
     border-radius:0;
@@ -141,175 +198,710 @@
     font-size:11px;
     font-weight:600;
     cursor:pointer;
-    color:#fff;
+    color:#ffffff;
     flex:1;
-    transition: filter .15s ease, transform .05s ease;
+    transition:
+      filter .15s ease,
+      transform .05s ease;
   }
-  button:active{ transform: translateY(1px); }
-  .btn-get{ background:var(--blue); }
-  .btn-get:hover{ filter:brightness(1.08); }
-  .btn-copy{ background:var(--green); }
-  .btn-copy:hover{ filter:brightness(1.08); }
+
+  button:active{
+    transform:translateY(1px);
+  }
+
+  .btn-get{
+    background:var(--blue);
+  }
+
+  .btn-get:hover{
+    filter:brightness(1.08);
+  }
+
+  .btn-copy{
+    background:var(--green);
+  }
+
+  .btn-copy:hover{
+    filter:brightness(1.08);
+  }
+
   .status{
     font-size:11px;
     margin-top:6px;
     min-height:13px;
   }
-  .status.ok{ color:var(--green-dark); }
-  .status.err{ color:#b91c1c; }
+
+  .status.ok{
+    color:#86efac;
+  }
+
+  .status.err{
+    color:#fca5a5;
+  }
+
   .field-label{
     display:none;
   }
+
+  /* =========================================
+     RESPONSIVE
+     ========================================= */
+
+  @media(max-width:700px){
+
+    body{
+      padding:10px 6px;
+    }
+
+    .outer{
+      padding:6px;
+    }
+
+    .frame{
+      padding:8px;
+      border-width:3px;
+    }
+
+    .grid{
+      min-width:960px;
+    }
+  }
 </style>
 </head>
+
 <body>
+
+<!-- =========================================
+     BENDERA USA - INLINE SVG
+     Tidak membutuhkan internet
+     ========================================= -->
+
+<svg
+  id="usaFlag"
+  viewBox="0 0 1000 526"
+  preserveAspectRatio="xMidYMid slice"
+  xmlns="http://www.w3.org/2000/svg"
+  aria-hidden="true">
+
+  <!-- 13 garis bendera -->
+  <rect width="1000" height="526" fill="#ffffff"/>
+
+  <rect y="0"   width="1000" height="40.46" fill="#b22234"/>
+  <rect y="80.92" width="1000" height="40.46" fill="#b22234"/>
+  <rect y="161.84" width="1000" height="40.46" fill="#b22234"/>
+  <rect y="242.76" width="1000" height="40.46" fill="#b22234"/>
+  <rect y="323.68" width="1000" height="40.46" fill="#b22234"/>
+  <rect y="404.60" width="1000" height="40.46" fill="#b22234"/>
+  <rect y="485.52" width="1000" height="40.48" fill="#b22234"/>
+
+  <!-- Canton biru -->
+  <rect
+    x="0"
+    y="0"
+    width="400"
+    height="283.22"
+    fill="#3c3b6e"/>
+
+  <!-- Bintang akan dibuat oleh JavaScript -->
+  <g id="stars"></g>
+
+</svg>
+
+<div id="flagOverlay"></div>
+
+
+<!-- =========================================
+     ACC TOOL
+     ========================================= -->
+
 <div class="outer">
+
   <div class="frame">
+
     <div class="wrap">
+
       <div class="grid" id="grid"></div>
+
     </div>
+
   </div>
+
 </div>
 
+
 <script>
-// Kolom 1: mode "hash" (pisah pakai #####, ambil N item dari atas)
-// Kolom 2-5: mode "line" (per baris, ambil N baris dari atas)
+
+/* =========================================
+   BUAT 50 BINTANG BENDERA USA
+   ========================================= */
+
+const starsGroup =
+  document.getElementById("stars");
+
+const starPoints = [
+  "0,-9",
+  "2.65,-2.78",
+  "8.56,-2.78",
+  "3.1,1.06",
+  "5.3,7.28",
+  "0,3.6",
+  "-5.3,7.28",
+  "-3.1,1.06",
+  "-8.56,-2.78",
+  "-2.65,-2.78"
+].join(" ");
+
+for(let row = 0; row < 9; row++){
+
+  const count =
+    row % 2 === 0 ? 6 : 5;
+
+  const y =
+    18 + row * 31;
+
+  for(let col = 0; col < count; col++){
+
+    const x =
+      row % 2 === 0
+        ? 20 + col * 72
+        : 56 + col * 72;
+
+    const star =
+      document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "polygon"
+      );
+
+    star.setAttribute(
+      "points",
+      starPoints
+    );
+
+    star.setAttribute(
+      "transform",
+      `translate(${x},${y}) scale(0.9)`
+    );
+
+    star.setAttribute(
+      "fill",
+      "#ffffff"
+    );
+
+    starsGroup.appendChild(star);
+  }
+}
+
+
+/* =========================================
+   KOLOM ACC TOOL
+   ========================================= */
+
 const columns = [
-  { id: 'col1', title: 'TITEL FYP', mode: 'hash', inputLabel: 'Mau dikeluarkan berapa UID?' },
-  { id: 'col2', title: 'TOPIK',     mode: 'line', inputLabel: 'Mau dikeluarkan berapa baris?' },
-  { id: 'col3', title: 'LINK',  mode: 'line', inputLabel: 'Mau dikeluarkan berapa baris?' },
-  { id: 'col4', title: 'USERNAME',  mode: 'line', inputLabel: 'Mau dikeluarkan berapa baris?' },
-  { id: 'col5', title: 'ACC',       mode: 'line', inputLabel: 'Mau dikeluarkan berapa baris?' },
+
+  {
+    id:"col1",
+    title:"TITEL FYP",
+    mode:"hash",
+    inputLabel:"Mau dikeluarkan berapa UID?"
+  },
+
+  {
+    id:"col2",
+    title:"TOPIK",
+    mode:"line",
+    inputLabel:"Mau dikeluarkan berapa baris?"
+  },
+
+  {
+    id:"col3",
+    title:"LINK",
+    mode:"line",
+    inputLabel:"Mau dikeluarkan berapa baris?"
+  },
+
+  {
+    id:"col4",
+    title:"USERNAME",
+    mode:"line",
+    inputLabel:"Mau dikeluarkan berapa baris?"
+  },
+
+  {
+    id:"col5",
+    title:"ACC",
+    mode:"line",
+    inputLabel:"Mau dikeluarkan berapa baris?"
+  }
+
 ];
 
-const grid = document.getElementById('grid');
+
+const grid =
+  document.getElementById("grid");
+
+
+/* =========================================
+   BUAT UI SETIAP KOLOM
+   ========================================= */
 
 columns.forEach(col => {
-  const el = document.createElement('div');
-  el.className = 'col';
+
+  const el =
+    document.createElement("div");
+
+  el.className = "col";
+
   el.innerHTML = `
-    <div class="col-title">${col.title}</div>
-    <div class="card">
-      <textarea class="in-area" id="${col.id}-input" placeholder="TITEL FYP"></textarea>
-      <div class="meta"><b>Jumlah:</b> <span id="${col.id}-count">0</span></div>
+
+    <div class="col-title">
+      ${col.title}
     </div>
-    <div class="card control-card">
-      <span class="field-label">${col.inputLabel}</span>
-      <input type="number" id="${col.id}-idx" min="1" value="1">
-      <div class="row">
-        <button class="btn-get" id="${col.id}-get">Get ACC</button>
-        <button class="btn-copy" id="${col.id}-copy">Copy ACC</button>
+
+    <div class="card">
+
+      <textarea
+        class="in-area"
+        id="${col.id}-input"
+        placeholder="${col.title}"
+      ></textarea>
+
+      <div class="meta">
+
+        <b>Jumlah:</b>
+
+        <span id="${col.id}-count">
+          0
+        </span>
+
       </div>
-      <div class="status" id="${col.id}-status"></div>
+
     </div>
+
+
+    <div class="card control-card">
+
+      <span class="field-label">
+        ${col.inputLabel}
+      </span>
+
+      <input
+        type="number"
+        id="${col.id}-idx"
+        min="1"
+        value="1"
+      >
+
+      <div class="row">
+
+        <button
+          class="btn-get"
+          id="${col.id}-get"
+        >
+          Get ACC
+        </button>
+
+        <button
+          class="btn-copy"
+          id="${col.id}-copy"
+        >
+          Copy ACC
+        </button>
+
+      </div>
+
+      <div
+        class="status"
+        id="${col.id}-status"
+      ></div>
+
+    </div>
+
+
     <div class="card">
-      <textarea class="out-area" id="${col.id}-output" placeholder="Hasil Get ACC akan muncul di sini"></textarea>
+
+      <textarea
+        class="out-area"
+        id="${col.id}-output"
+        placeholder="Hasil Get ACC akan muncul di sini"
+      ></textarea>
+
     </div>
+
   `;
+
   grid.appendChild(el);
+
 });
 
-// --- helpers ---
-function splitHash(raw) {
-  const lines = raw.split('\n');
+
+/* =========================================
+   SPLIT HASH
+   ========================================= */
+
+function splitHash(raw){
+
+  const lines =
+    raw.split("\n");
+
   const items = [];
+
   let current = [];
-  for (const line of lines) {
-    if (/^#{3,}$/.test(line.trim())) {
-      if (current.length > 0) {
-        items.push(current.join('\n').trim());
+
+  for(const line of lines){
+
+    if(/^#{3,}$/.test(line.trim())){
+
+      if(current.length > 0){
+
+        const value =
+          current
+            .join("\n")
+            .trim();
+
+        if(value !== ""){
+          items.push(value);
+        }
+
         current = [];
       }
+
       continue;
     }
+
     current.push(line);
   }
-  if (current.length > 0 && current.join('\n').trim() !== '') {
-    items.push(current.join('\n').trim());
+
+
+  if(current.length > 0){
+
+    const value =
+      current
+        .join("\n")
+        .trim();
+
+    if(value !== ""){
+      items.push(value);
+    }
   }
-  return items.filter(it => it.length > 0);
-}
-function joinHash(items) {
-  return items.join('\n#####\n');
-}
-function splitLines(raw) {
-  return raw.split('\n').filter(l => l.trim() !== '');
-}
-function joinLines(items) {
-  return items.join('\n');
+
+
+  return items.filter(
+    item => item.length > 0
+  );
 }
 
-function setStatus(colId, msg, type) {
-  const s = document.getElementById(`${colId}-status`);
-  s.textContent = msg;
-  s.className = 'status' + (type ? ' ' + type : '');
+
+/* =========================================
+   JOIN HASH
+   ========================================= */
+
+function joinHash(items){
+
+  return items.join(
+    "\n#####\n"
+  );
 }
 
-function initColumn(col) {
-  const inputArea = document.getElementById(`${col.id}-input`);
-  const countLabel = document.getElementById(`${col.id}-count`);
-  const idxInput = document.getElementById(`${col.id}-idx`);
-  const getBtn = document.getElementById(`${col.id}-get`);
-  const copyBtn = document.getElementById(`${col.id}-copy`);
-  const outputArea = document.getElementById(`${col.id}-output`);
 
-  const splitFn = col.mode === 'hash' ? splitHash : splitLines;
-  const joinFn = col.mode === 'hash' ? joinHash : joinLines;
+/* =========================================
+   SPLIT BARIS
+   ========================================= */
 
-  function updateCount() {
-    const items = splitFn(inputArea.value);
-    countLabel.textContent = items.length;
+function splitLines(raw){
+
+  return raw
+    .split("\n")
+    .filter(
+      line => line.trim() !== ""
+    );
+}
+
+
+/* =========================================
+   JOIN BARIS
+   ========================================= */
+
+function joinLines(items){
+
+  return items.join("\n");
+}
+
+
+/* =========================================
+   STATUS
+   ========================================= */
+
+function setStatus(
+  colId,
+  msg,
+  type
+){
+
+  const status =
+    document.getElementById(
+      `${colId}-status`
+    );
+
+  status.textContent =
+    msg;
+
+  status.className =
+    "status" +
+    (type
+      ? " " + type
+      : "");
+}
+
+
+/* =========================================
+   INIT KOLOM
+   ========================================= */
+
+function initColumn(col){
+
+  const inputArea =
+    document.getElementById(
+      `${col.id}-input`
+    );
+
+  const countLabel =
+    document.getElementById(
+      `${col.id}-count`
+    );
+
+  const idxInput =
+    document.getElementById(
+      `${col.id}-idx`
+    );
+
+  const getBtn =
+    document.getElementById(
+      `${col.id}-get`
+    );
+
+  const copyBtn =
+    document.getElementById(
+      `${col.id}-copy`
+    );
+
+  const outputArea =
+    document.getElementById(
+      `${col.id}-output`
+    );
+
+
+  const splitFn =
+    col.mode === "hash"
+      ? splitHash
+      : splitLines;
+
+
+  const joinFn =
+    col.mode === "hash"
+      ? joinHash
+      : joinLines;
+
+
+  /* =====================================
+     UPDATE JUMLAH
+     ===================================== */
+
+  function updateCount(){
+
+    const items =
+      splitFn(
+        inputArea.value
+      );
+
+    countLabel.textContent =
+      items.length;
+
     return items;
   }
 
-  inputArea.addEventListener('input', () => {
-    updateCount();
-    setStatus(col.id, '', '');
-  });
 
-  getBtn.addEventListener('click', () => {
-    const items = splitFn(inputArea.value);
-    const n = parseInt(idxInput.value, 10);
+  /* =====================================
+     SAAT INPUT BERUBAH
+     ===================================== */
 
-    if (!n || n < 1) {
-      setStatus(col.id, 'Masukkan angka yang valid.', 'err');
-      return;
+  inputArea.addEventListener(
+    "input",
+    () => {
+
+      updateCount();
+
+      setStatus(
+        col.id,
+        "",
+        ""
+      );
+
     }
-    if (items.length === 0) {
-      outputArea.value = '';
-      setStatus(col.id, 'Tidak ada UID tersedia.', 'err');
-      return;
-    }
+  );
 
-    const take = Math.min(n, items.length);
-    const taken = items.slice(0, take);
-    const remaining = items.slice(take);
 
-    outputArea.value = col.mode === 'hash' ? joinHash(taken) : joinLines(taken);
-    inputArea.value = joinFn(remaining);
-    updateCount();
-    setStatus(col.id, `${take} UID berhasil diambil.`, 'ok');
-  });
+  /* =====================================
+     GET ACC
+     ===================================== */
 
-  copyBtn.addEventListener('click', async () => {
-    if (!outputArea.value.trim()) {
-      setStatus(col.id, 'Tidak ada isi untuk disalin.', 'err');
-      return;
+  getBtn.addEventListener(
+    "click",
+    () => {
+
+      const items =
+        splitFn(
+          inputArea.value
+        );
+
+
+      const n =
+        parseInt(
+          idxInput.value,
+          10
+        );
+
+
+      if(!n || n < 1){
+
+        setStatus(
+          col.id,
+          "Masukkan angka yang valid.",
+          "err"
+        );
+
+        return;
+      }
+
+
+      if(items.length === 0){
+
+        outputArea.value =
+          "";
+
+        setStatus(
+          col.id,
+          "Tidak ada UID tersedia.",
+          "err"
+        );
+
+        return;
+      }
+
+
+      const take =
+        Math.min(
+          n,
+          items.length
+        );
+
+
+      const taken =
+        items.slice(
+          0,
+          take
+        );
+
+
+      const remaining =
+        items.slice(
+          take
+        );
+
+
+      outputArea.value =
+        col.mode === "hash"
+          ? joinHash(taken)
+          : joinLines(taken);
+
+
+      inputArea.value =
+        joinFn(remaining);
+
+
+      updateCount();
+
+
+      setStatus(
+        col.id,
+        `${take} UID berhasil diambil.`,
+        "ok"
+      );
+
     }
-    try {
-      await navigator.clipboard.writeText(outputArea.value);
-      setStatus(col.id, 'Berhasil disalin ke clipboard.', 'ok');
-    } catch (e) {
-      outputArea.select();
-      document.execCommand('copy');
-      setStatus(col.id, 'Berhasil disalin (fallback).', 'ok');
+  );
+
+
+  /* =====================================
+     COPY ACC
+     ===================================== */
+
+  copyBtn.addEventListener(
+    "click",
+    async () => {
+
+      if(
+        !outputArea.value.trim()
+      ){
+
+        setStatus(
+          col.id,
+          "Tidak ada isi untuk disalin.",
+          "err"
+        );
+
+        return;
+      }
+
+
+      try{
+
+        await navigator.clipboard.writeText(
+          outputArea.value
+        );
+
+        setStatus(
+          col.id,
+          "Berhasil disalin ke clipboard.",
+          "ok"
+        );
+
+      }catch(error){
+
+        outputArea.select();
+
+        document.execCommand(
+          "copy"
+        );
+
+        setStatus(
+          col.id,
+          "Berhasil disalin (fallback).",
+          "ok"
+        );
+      }
+
     }
-  });
+  );
+
+
+  /* =====================================
+     HITUNG AWAL
+     ===================================== */
 
   updateCount();
+
 }
 
-columns.forEach(initColumn);
+
+/* =========================================
+   JALANKAN SEMUA KOLOM
+   ========================================= */
+
+columns.forEach(
+  initColumn
+);
+
 </script>
+
 </body>
 </html>
