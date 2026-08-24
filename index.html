@@ -342,7 +342,7 @@
   </div>
 
   <script>
-    // --- SYSTEM UNDO & REDO KHUSUS KOLOM BAWAH ---
+    // --- FITUR AUTO-SAVE OTOMATIS (LOCALSTORAGE) & UNDO/REDO ---
     let historyStack = [];
     let historyStep = -1;
     let isUndoRedoAction = false;
@@ -355,7 +355,30 @@
       };
     }
 
+    // Fungsi menyimpan ke LocalStorage (Otomatis tertimpa/overwrite)
+    function saveToLocalStorage() {
+      const currentState = getBottomState();
+      localStorage.setItem('kolom_bawah_data', JSON.stringify(currentState));
+    }
+
+    // Fungsi memuat data dari LocalStorage saat web dibuka kembali
+    function loadFromLocalStorage() {
+      const savedData = localStorage.getItem('kolom_bawah_data');
+      if (savedData) {
+        try {
+          const data = JSON.parse(savedData);
+          document.getElementById('titel-input').value = data.titel || '';
+          document.getElementById('topik-input').value = data.topik || '';
+          document.getElementById('link-input').value = data.link || '';
+        } catch(e) {
+          console.error("Gagal membaca data tersimpan", e);
+        }
+      }
+    }
+
     function saveState() {
+      saveToLocalStorage(); // Auto-save ke browser setiap terjadi perubahan
+
       if (isUndoRedoAction) return;
 
       const currentState = getBottomState();
@@ -378,6 +401,7 @@
       document.getElementById('topik-input').value = state.topik;
       document.getElementById('link-input').value = state.link;
       updateCounts();
+      saveToLocalStorage();
       isUndoRedoAction = false;
     }
 
@@ -429,7 +453,7 @@
       event.target.value = '';
     }
 
-    // --- SAVE SISA DATA HANYA UNTUK KOLOM BAWAH (TITEL, TOPIK, LINK) ---
+    // --- SAVE SISA DATA KE FILE .TXT ---
     function saveSisaDataKolomBawah() {
       const titelData = document.getElementById('titel-input').value;
       const topikData = document.getElementById('topik-input').value;
@@ -614,7 +638,8 @@
     document.getElementById('btnAcak').onclick = acakSemua;
     document.getElementById('nameInput').addEventListener('input', acakSemua);
 
-    // Inisialisasi awal
+    // INISIALISASI SAAT HALAMAN DIBUKA
+    loadFromLocalStorage(); // Muat data terakhir dari browser jika ada
     updateCounts();
     saveState();
     acakSemua();
