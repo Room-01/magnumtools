@@ -242,6 +242,32 @@
     display:none;
   }
 
+  /* STYLING UNTUK PASSWORD DI USERNAME */
+  .pwd-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .btn-copy-pwd {
+    border-radius: 0;
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #72243E;
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+  .btn-copy-pwd:hover {
+    background: #4B1528;
+  }
+  .pwd-input {
+    flex: 1;
+    background: #6b7280;
+    border: 1px solid #000000;
+    font-family: "Courier New", monospace;
+  }
+
   /* STYLING GENERATOR AKUN */
   .gen-controls {
     display: flex;
@@ -250,17 +276,17 @@
     margin: 12px 0;
     flex-wrap: wrap;
   }
-  #btnAcak, #btnCopyPwd {
+  #btnAcak, #btnCopyPwdMain {
     border-radius: 0;
     padding: 8px 12px;
     font-size: 11px;
     font-weight: 600;
     background: #72243E;
   }
-  #btnAcak:hover, #btnCopyPwd:hover {
+  #btnAcak:hover, #btnCopyPwdMain:hover {
     background: #4B1528;
   }
-  #pwdInput {
+  #pwdInputMain {
     flex: 1;
     min-width: 130px;
     background: #6b7280;
@@ -364,8 +390,8 @@
       </div>
       <div class="gen-controls">
         <button id="btnAcak">🔄 Acak nama</button>
-        <input id="pwdInput" type="text" placeholder="your custom password" />
-        <button id="btnCopyPwd">📋 Copy Pwd</button>
+        <input id="pwdInputMain" type="text" placeholder="your custom password" />
+        <button id="btnCopyPwdMain">📋 Copy Pwd</button>
       </div>
       <div id="gen-rows"></div>
     </div>
@@ -404,7 +430,7 @@ const columns = [
   { id: "col3", title: "LINK", mode: "line", inputLabel: "Mau dikeluarkan berapa baris?" }
 ];
 
-const usernameColumn = { id: "col4", title: "USERNAME", mode: "line", inputLabel: "Mau dikeluarkan berapa baris?" };
+const usernameColumn = { id: "col4", title: "USERNAME", mode: "line", inputLabel: "Mau dikeluarkan berapa baris?", showPwdControl: true };
 
 const grid = document.getElementById("grid");
 
@@ -420,6 +446,17 @@ usernameContainer.appendChild(createColumnElement(usernameColumn));
 function createColumnElement(col){
   const el = document.createElement("div");
   el.className = "col";
+  
+  let pwdControlHtml = "";
+  if(col.showPwdControl) {
+    pwdControlHtml = `
+      <div class="pwd-controls">
+        <input type="text" class="pwd-input" id="${col.id}-pwd" placeholder="your custom password" />
+        <button class="btn-copy-pwd" id="${col.id}-copy-pwd">📋 Copy Pwd</button>
+      </div>
+    `;
+  }
+
   el.innerHTML = `
     <div class="col-title">${col.title}</div>
     <div class="card">
@@ -437,6 +474,7 @@ function createColumnElement(col){
         <button class="btn-get" id="${col.id}-get">Get ACC</button>
         <button class="btn-copy" id="${col.id}-copy">Copy ACC</button>
       </div>
+      ${pwdControlHtml}
       <div class="status" id="${col.id}-status"></div>
     </div>
 
@@ -502,6 +540,38 @@ function initColumn(col){
   const savedData = localStorage.getItem(`acctool_${col.id}`);
   if(savedData !== null){
     inputArea.value = savedData;
+  }
+
+  // Handle Password control jika ada di kolom Username
+  if(col.showPwdControl) {
+    const pwdInput = document.getElementById(`${col.id}-pwd`);
+    const pwdCopyBtn = document.getElementById(`${col.id}-copy-pwd`);
+
+    const savedPwd = localStorage.getItem(`acctool_${col.id}_pwd`);
+    if(savedPwd !== null){
+      pwdInput.value = savedPwd;
+    }
+
+    pwdInput.addEventListener("input", () => {
+      localStorage.setItem(`acctool_${col.id}_pwd`, pwdInput.value);
+    });
+
+    pwdCopyBtn.addEventListener("click", async () => {
+      const pwdVal = pwdInput.value;
+      if(!pwdVal) return;
+      try {
+        await navigator.clipboard.writeText(pwdVal);
+        const originalText = pwdCopyBtn.textContent;
+        pwdCopyBtn.textContent = '✅ Copied';
+        setTimeout(() => { pwdCopyBtn.textContent = originalText; }, 1000);
+      } catch(err) {
+        pwdInput.select();
+        document.execCommand("copy");
+        const originalText = pwdCopyBtn.textContent;
+        pwdCopyBtn.textContent = '✅ Copied';
+        setTimeout(() => { pwdCopyBtn.textContent = originalText; }, 1000);
+      }
+    });
   }
 
   function updateCount(){
@@ -653,10 +723,10 @@ function acakSemua(){
 document.getElementById('btnAcak').onclick = acakSemua;
 renderGen();
 
-document.getElementById('btnCopyPwd').onclick = function(){
-  const pwdVal = document.getElementById('pwdInput').value;
+document.getElementById('btnCopyPwdMain').onclick = function(){
+  const pwdVal = document.getElementById('pwdInputMain').value;
   if(!pwdVal) return;
-  const btn = document.getElementById('btnCopyPwd');
+  const btn = document.getElementById('btnCopyPwdMain');
   navigator.clipboard.writeText(pwdVal).then(function(){
     const original = btn.textContent;
     btn.textContent = '✅ Copied';
