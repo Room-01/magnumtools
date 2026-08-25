@@ -262,7 +262,7 @@
 
     </div>
 
-    <!-- BARIS BAWAH (SINGLE LOAD FILE, SAVE SISA DATA, UNDO/REDO) -->
+    <!-- BARIS BAWAH (SINGLE LOAD FILE, SAVE SISA DATA OVERWRITE, UNDO/REDO) -->
     <div class="bottom-row">
       <div class="card">
         <!-- BARIS TOMBOL AKSI UTAMA DI ATAS KOLOM BAWAH -->
@@ -342,10 +342,11 @@
   </div>
 
   <script>
-    // --- FITUR AUTO-SAVE OTOMATIS (LOCALSTORAGE) & UNDO/REDO ---
+    // --- FITUR AUTO-SAVE (LOCALSTORAGE) & UNDO/REDO ---
     let historyStack = [];
     let historyStep = -1;
     let isUndoRedoAction = false;
+    let fileHandle = null; // Variabel menyimpan izin overwrite file asli di PC
 
     function getBottomState() {
       return {
@@ -355,13 +356,11 @@
       };
     }
 
-    // Fungsi menyimpan ke LocalStorage (Otomatis tertimpa/overwrite)
     function saveToLocalStorage() {
       const currentState = getBottomState();
       localStorage.setItem('kolom_bawah_data', JSON.stringify(currentState));
     }
 
-    // Fungsi memuat data dari LocalStorage saat web dibuka kembali
     function loadFromLocalStorage() {
       const savedData = localStorage.getItem('kolom_bawah_data');
       if (savedData) {
@@ -377,7 +376,7 @@
     }
 
     function saveState() {
-      saveToLocalStorage(); // Auto-save ke browser setiap terjadi perubahan
+      saveToLocalStorage();
 
       if (isUndoRedoAction) return;
 
@@ -453,19 +452,44 @@
       event.target.value = '';
     }
 
-    // --- SAVE SISA DATA KE FILE .TXT ---
-    function saveSisaDataKolomBawah() {
+    // --- SAVE SISA DATA DENGAN METODE OVERWRITE FITUR (FILE SYSTEM ACCESS API) ---
+    async function saveSisaDataKolomBawah() {
       const titelData = document.getElementById('titel-input').value;
       const topikData = document.getElementById('topik-input').value;
       const linkData = document.getElementById('link-input').value;
 
       const content = `=== TITEL FYP ===\n${titelData}\n\n=== TOPIK ===\n${topikData}\n\n=== LINK ===\n${linkData}`;
 
-      const blob = new Blob([content], { type: 'text/plain' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'Sisa_Data_Kolom_Bawah.txt';
-      a.click();
+      // Cek apakah browser mendukung File System Access API (Chrome/Edge/Opera)
+      if ('showSaveFilePicker' in window) {
+        try {
+          if (!fileHandle) {
+            fileHandle = await window.showSaveFilePicker({
+              suggestedName: 'Sisa_Data_Kolom_Bawah.txt',
+              types: [{
+                description: 'Text Files',
+                accept: { 'text/plain': ['.txt'] },
+              }],
+            });
+          }
+
+          const writable = await fileHandle.createWritable();
+          await writable.write(content);
+          await writable.close();
+          alert('Data berhasil disimpan/ditimpa (overwritten)!');
+        } catch (err) {
+          if (err.name !== 'AbortError') {
+            console.error('Gagal menyimpan file:', err);
+          }
+        }
+      } else {
+        // Fallback untuk browser lawas/non-chromium
+        const blob = new Blob([content], { type: 'text/plain' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'Sisa_Data_Kolom_Bawah.txt';
+        a.click();
+      }
     }
 
     function clearBottomData() {
@@ -639,7 +663,7 @@
     document.getElementById('nameInput').addEventListener('input', acakSemua);
 
     // INISIALISASI SAAT HALAMAN DIBUKA
-    loadFromLocalStorage(); // Muat data terakhir dari browser jika ada
+    loadFromLocalStorage();
     updateCounts();
     saveState();
     acakSemua();
