@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>MAGNUM ACC</title>
+  <title>Layout Generator Complete</title>
   <style>
     * {
       box-sizing: border-box;
@@ -234,8 +234,9 @@
             <button class="btn-blue btn-flex" onclick="getAccStandard('username')">Get ACC</button>
             <button class="btn-green btn-flex" onclick="copyAcc('username')">Copy ACC</button>
           </div>
+          <!-- INPUT PASSWORD BISA DIISI MANUAL -->
           <div style="display: flex; gap: 4px;">
-            <input type="text" id="username-pwd" value="" placeholder="Password" readonly>
+            <input type="text" id="username-pwd" value="" placeholder="Password">
             <button class="btn-pink" onclick="copyText('username-pwd')">📋 Copy Pwd</button>
           </div>
         </div>
@@ -346,13 +347,14 @@
     let historyStack = [];
     let historyStep = -1;
     let isUndoRedoAction = false;
-    let fileHandle = null; // Variabel menyimpan izin overwrite file asli di PC
+    let fileHandle = null;
 
     function getBottomState() {
       return {
         titel: document.getElementById('titel-input').value,
         topik: document.getElementById('topik-input').value,
-        link: document.getElementById('link-input').value
+        link: document.getElementById('link-input').value,
+        pwd: document.getElementById('username-pwd').value
       };
     }
 
@@ -369,6 +371,7 @@
           document.getElementById('titel-input').value = data.titel || '';
           document.getElementById('topik-input').value = data.topik || '';
           document.getElementById('link-input').value = data.link || '';
+          document.getElementById('username-pwd').value = data.pwd || '';
         } catch(e) {
           console.error("Gagal membaca data tersimpan", e);
         }
@@ -384,7 +387,7 @@
       
       if (historyStep >= 0) {
         const last = historyStack[historyStep];
-        if (last.titel === currentState.titel && last.topik === currentState.topik && last.link === currentState.link) {
+        if (last.titel === currentState.titel && last.topik === currentState.topik && last.link === currentState.link && last.pwd === currentState.pwd) {
           return;
         }
       }
@@ -399,6 +402,7 @@
       document.getElementById('titel-input').value = state.titel;
       document.getElementById('topik-input').value = state.topik;
       document.getElementById('link-input').value = state.link;
+      document.getElementById('username-pwd').value = state.pwd || '';
       updateCounts();
       saveToLocalStorage();
       isUndoRedoAction = false;
@@ -452,7 +456,7 @@
       event.target.value = '';
     }
 
-    // --- SAVE SISA DATA DENGAN METODE OVERWRITE FITUR (FILE SYSTEM ACCESS API) ---
+    // --- SAVE SISA DATA DENGAN METODE OVERWRITE (FILE SYSTEM ACCESS API) ---
     async function saveSisaDataKolomBawah() {
       const titelData = document.getElementById('titel-input').value;
       const topikData = document.getElementById('topik-input').value;
@@ -460,7 +464,6 @@
 
       const content = `=== TITEL FYP ===\n${titelData}\n\n=== TOPIK ===\n${topikData}\n\n=== LINK ===\n${linkData}`;
 
-      // Cek apakah browser mendukung File System Access API (Chrome/Edge/Opera)
       if ('showSaveFilePicker' in window) {
         try {
           if (!fileHandle) {
@@ -483,7 +486,6 @@
           }
         }
       } else {
-        // Fallback untuk browser lawas/non-chromium
         const blob = new Blob([content], { type: 'text/plain' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
@@ -525,6 +527,7 @@
       });
     });
 
+    document.getElementById('username-pwd').addEventListener('input', saveState);
     document.getElementById('username-input').addEventListener('input', updateCounts);
 
     function getAccTitelFyp() {
